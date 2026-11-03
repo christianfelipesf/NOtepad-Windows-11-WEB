@@ -47,7 +47,7 @@ function openSettings(){
   $("oAbout").onclick=function(){openAbout();};
 }
 function openAbout(){
-  dlg("<svg class='about-logo' viewBox='0 0 16 16'><rect x='2' y='1' width='12' height='14' rx='1.5' fill='#f9f9f9' stroke='#888'/><rect x='4' y='4' width='8' height='1.2' fill='#555'/><rect x='4' y='6.4' width='8' height='1.2' fill='#555'/></svg><h2 style='text-align:center'>RE:Notepad (web)</h2><p style='text-align:center'>Bloco de notas do Windows 10, com visual do Windows 11.<br>Versão web não oficial, inspirada no <b>RENotepad</b> de Nikko Gonzales.<br>Sem Copilot, sem telemetria.</p><div class='row' style='justify-content:center'><button class='btn primary' onclick='closeDlg()'>OK</button></div>");
+  dlg("<img class='about-logo' src='icons/icon-192.png' alt='Ícone do RENotepad' width='64' height='64'><h2 style='text-align:center'>RE:Notepad (web)</h2><p style='text-align:center'>Bloco de notas do Windows 10, com visual do Windows 11.<br>Versão web não oficial, inspirada no <b>RENotepad</b> de Nikko Gonzales.<br>Sem Copilot, sem telemetria.</p><div class='row' style='justify-content:center'><button class='btn primary' onclick='closeDlg()'>OK</button></div>");
 }
 function buildMenus(){
   var F=$("menu-file"),E=$("menu-edit"),V=$("menu-view"),S=$("menu-settings");

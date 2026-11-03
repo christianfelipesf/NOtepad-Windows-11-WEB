@@ -37,3 +37,13 @@ mostrado.
 - Ao salvar, a barra mostra "Salvo em HH:MM DD/MM/AAAA"; opcionalmente
   insere a data/hora no fim do texto (Configurações)
 - `.LOG` na primeira linha carimba data/hora ao abrir, como no original
+
+## Instalar como app e identidade
+
+- Ícone próprio em `icons/` (SVG + PNG 16–512, `.ico` e capa OG 1200x630)
+- `site.webmanifest` + `sw.js`: dá para instalar como app (Arquivo →
+  Instalar app…) e usar offline; o `theme-color` acompanha o tema
+  Escuro/Claro/Branco
+- Prévia de link (Open Graph + Twitter Card) com título, descrição e capa
+- Abrindo por `file://` continua funcionando — só o modo offline exige
+  `http(s)`

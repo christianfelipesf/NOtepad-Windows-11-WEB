@@ -1,0 +1,22 @@
+{
+  "name": "RENotepad — Bloco de notas",
+  "short_name": "RENotepad",
+  "description": "Bloco de notas com visual do Windows 11: guias, temas e prévia Markdown. Sem Copilot, sem telemetria.",
+  "id": "./index.html",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "dir": "ltr",
+  "lang": "pt-BR",
+  "background_color": "#1f1f1f",
+  "theme_color": "#0c0c0c",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "icons/og-cover.png", "sizes": "1200x630", "type": "image/png", "form_factor": "wide", "label": "RENotepad com o tema escuro" }
+  ]
+}

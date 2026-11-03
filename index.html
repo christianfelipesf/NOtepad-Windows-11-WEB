@@ -2,13 +2,50 @@
 <html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RENotepad</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>RENotepad — Bloco de notas para a web</title>
+<meta name="description" content="RENotepad para a web: bloco de notas com visual do Windows 11, guias, temas escuro/claro e prévia Markdown. Sem Copilot, sem telemetria.">
+<meta name="author" content="RENotepad Web">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://christianfelipesf.github.io/NOtepad-Windows-11-WEB/">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0c0c0c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#eeeeee" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c0c0c" id="metaTheme">
+<meta name="application-name" content="RENotepad">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RENotepad">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<meta name="msapplication-TileColor" content="#0078d4">
+<meta name="msapplication-config" content="browserconfig.xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RENotepad">
+<meta property="og:title" content="RENotepad — Bloco de notas para a web">
+<meta property="og:description" content="Bloco de notas com visual do Windows 11: guias, temas e prévia Markdown. Sem Copilot, sem telemetria.">
+<meta property="og:url" content="https://christianfelipesf.github.io/NOtepad-Windows-11-WEB/">
+<meta property="og:image" content="https://christianfelipesf.github.io/NOtepad-Windows-11-WEB/icons/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="RENotepad: bloco de notas com visual do Windows 11">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="RENotepad — Bloco de notas para a web">
+<meta name="twitter:description" content="Bloco de notas com visual do Windows 11: guias, temas e prévia Markdown. Sem Copilot, sem telemetria.">
+<meta name="twitter:image" content="https://christianfelipesf.github.io/NOtepad-Windows-11-WEB/icons/og-cover.png">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="icon" type="image/x-icon" href="icons/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="mask-icon" href="icons/mask-icon.svg" color="#0078d4">
+<link rel="manifest" href="site.webmanifest">
 <link rel="stylesheet" href="css/theme.css">
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-<div class="strip"><div class="app-icon"><svg viewBox="0 0 16 16"><rect x="2" y="1" width="12" height="14" rx="1.5" fill="#f9f9f9" stroke="#888" stroke-width=".8"/><rect x="4" y="4" width="8" height="1.2" fill="#555"/><rect x="4" y="6.4" width="8" height="1.2" fill="#555"/><rect x="4" y="8.8" width="6" height="1.2" fill="#555"/></svg></div><div class="tabs" id="tabs"></div><button class="newtab" id="btnNewTab" title="Nova guia (Ctrl+T)">+</button><div class="drag"></div></div>
+<div class="strip"><div class="app-icon"><img src="icons/icon.svg" alt="" width="16" height="16"></div><div class="tabs" id="tabs"></div><button class="newtab" id="btnNewTab" title="Nova guia (Ctrl+T)">+</button><div class="drag"></div></div>
 <div class="menubar"><button class="mi" data-m="file">Arquivo</button><button class="mi" data-m="edit">Editar</button><button class="mi" data-m="view">Exibir</button><button class="gear" id="btnSettings" title="Configurações"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 5.5A2.5 2.5 0 1 0 8 10.5 2.5 2.5 0 0 0 8 5.5zm6.3 2.5-.9.7c.03.22.03.46 0 .68l.9.7-.7 1.2-1.05-.2c-.18.16-.39.29-.61.38l-.2 1.05h-1.4l-.2-1.05a2.9 2.9 0 0 1-.61-.38l-1.05.2-.7-1.2.9-.7a1.9 1.9 0 0 1 0-.68l-.9-.7.7-1.2 1.05.2c.18-.16.39-.29.61-.38l.2-1.05h-1.4l.2 1.05c-.22.09-.43.22-.61.38l-1.05-.2-.7 1.2z" transform="translate(-1.3,-1.5) scale(1.05)"/></svg></button>
 <div class="menu" id="menu-file"></div><div class="menu" id="menu-edit"></div><div class="menu" id="menu-view"></div><div class="menu" id="menu-settings" style="right:8px;left:auto"></div>
 </div>
@@ -28,5 +65,6 @@
 <script src="js/editor.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>
+<script src="js/pwa.js"></script>
 </body>
 </html>

@@ -8,7 +8,7 @@ body{font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;backgr
 button{font:inherit;color:inherit;background:none;border:none}
 .strip{height:42px;background:var(--strip);display:flex;align-items:stretch;flex-shrink:0;position:relative}
 .app-icon{width:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.app-icon svg{width:16px;height:16px}
+.app-icon svg,.app-icon img{width:16px;height:16px}
 .tabs{display:flex;align-items:flex-end;flex:0 1 auto;overflow:hidden;padding-top:11px;min-width:0}
 .tab{display:flex;align-items:center;gap:8px;width:200px;min-width:100px;max-width:240px;flex:0 1 auto;height:31px;padding:0 8px 0 10px;border-radius:8px 8px 0 0;background:transparent;color:var(--text);cursor:default;white-space:nowrap;position:relative}
 .tab+.tab{box-shadow:-1px 0 0 var(--sep)}

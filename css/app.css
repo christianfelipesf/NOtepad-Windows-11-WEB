@@ -67,4 +67,14 @@ body.dragging .editor-wrap{outline:2px dashed var(--accent);outline-offset:-10px
 .ctx.show{display:block}
 .ctx button{display:block;width:100%;text-align:left;padding:7px 10px;border-radius:4px;font-size:12px}
 .ctx button:hover{background:var(--hover)}
+.mi,.gear,.newtab,.mdbar button,.menu button,.ctx button,.btn,.tab,.tab .x,.st.clickable{transition:background-color .12s ease-out}
+.btn.primary{transition:filter .12s ease-out}
+.field input[type=text],.field input[type=number],.field select{transition:border-bottom-color .12s ease-out}
+.menu.show,.ctx.show,.small-find.show{animation:fly-in .13s ease-out}
+.overlay.show{animation:fade-in .15s ease-out}
+.overlay.show .dlg{animation:dlg-in .15s ease-out}
+@keyframes fly-in{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+@keyframes dlg-in{from{opacity:0;transform:scale(.97) translateY(4px)}to{opacity:1;transform:none}}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media print{.strip,.menubar,.statusbar,.overlay,.small-find,.ctx{display:none!important}.editor-wrap{overflow:visible}#editor{overflow:visible;height:auto}}
