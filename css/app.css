@@ -63,10 +63,23 @@ body.dragging .editor-wrap{outline:2px dashed var(--accent);outline-offset:-10px
 .small-find .frow{display:flex;gap:6px;margin-top:8px}
 .small-find input[type=text]{flex:1}
 .about-logo{width:64px;height:64px;margin:0 auto 10px;display:block}
+.mtools{display:flex;gap:6px;margin:4px 0 10px;flex-wrap:wrap}
+.mtools .btn{min-width:0}
+.mlist{max-height:300px;overflow:auto;border:1px solid var(--sep);border-radius:6px;margin-bottom:6px}
+.mrow{display:flex;align-items:center;gap:10px;padding:8px 10px;font-size:12px;border-bottom:1px solid var(--sep);cursor:pointer}
+.mrow:last-child{border-bottom:none}
+.mrow:hover{background:var(--hover)}
+.mrow input{flex-shrink:0}
+.mrow .mn{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.mrow .md{flex-shrink:0;color:var(--text2);font-size:11px}
+.mrow .mc{flex-shrink:0;color:var(--text-dim);font-size:11px;min-width:70px;text-align:right}
+@media (max-width:900px){#stDates{display:none}}
+@media (max-width:640px){#stLines{display:none}#stTheme{display:none}}
 .ctx{position:fixed;background:var(--dlg);border:1px solid var(--sep);border-radius:8px;padding:4px;z-index:200;min-width:180px;display:none;box-shadow:0 8px 24px rgba(0,0,0,.45)}
 .ctx.show{display:block}
 .ctx button{display:block;width:100%;text-align:left;padding:7px 10px;border-radius:4px;font-size:12px}
 .ctx button:hover{background:var(--hover)}
+.ctx.tabs-list{max-height:50vh;overflow:auto;min-width:260px;max-width:330px}
 .mi,.gear,.newtab,.mdbar button,.menu button,.ctx button,.btn,.tab,.tab .x,.st.clickable{transition:background-color .12s ease-out}
 .btn.primary{transition:filter .12s ease-out}
 .field input[type=text],.field input[type=number],.field select{transition:border-bottom-color .12s ease-out}

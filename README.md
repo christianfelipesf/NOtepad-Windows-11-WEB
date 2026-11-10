@@ -32,11 +32,17 @@ mostrado.
 
 - Guias persistentes: fechar o navegador com arquivos abertos restaura tudo
   (conteúdo, codificação e quebras) na próxima abertura
-- Temas Escuro / Claro / Branco
+- Temas Escuro / Claro / Branco / Sépia / Meia-noite (barra de status ou Exibir → Tema)
 - Prévia Markdown (Ctrl+Shift+M) para arquivos `.md`
 - Ao salvar, a barra mostra "Salvo em HH:MM DD/MM/AAAA"; opcionalmente
   insere a data/hora no fim do texto (Configurações)
 - `.LOG` na primeira linha carimba data/hora ao abrir, como no original
+- Contador de linhas na barra de status; cada nota guarda criação/edição
+  (passe o mouse na guia ou abra Arquivo → Propriedades da nota)
+- Guias com arrastar-para-reordenar; com muitas guias, use ▾ para listar todas
+- Arquivo → Gerenciar guias: selecionar, ordenar (A–Z/recentes) e baixar
+  marcadas em `.zip` com `indice.csv` + `notas.json` (título, criação, edição);
+  o mesmo `.zip` pode ser importado de volta (inclusive arrastando o arquivo)
 
 ## Instalar como app e identidade
 

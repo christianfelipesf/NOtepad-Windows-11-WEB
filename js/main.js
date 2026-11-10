@@ -8,7 +8,7 @@ bindGlobalEvents();
     ses.tabs.slice(0,20).forEach(function(s){
       if(typeof s.content!=="string")return;
       untitledN++;
-      tabs.push({name:s.name||("Sem título "+untitledN),path:s.path||null,handle:null,content:s.content,modified:!!s.modified,encoding:s.encoding||"UTF-8",eol:s.eol||"CRLF"});
+      tabs.push({name:s.name||("Sem título "+untitledN),path:s.path||null,handle:null,content:s.content,modified:!!s.modified,encoding:s.encoding||"UTF-8",eol:s.eol||"CRLF",createdAt:s.createdAt||Date.now(),updatedAt:s.updatedAt||s.createdAt||Date.now()});
       count++;
     });
     if(count){
