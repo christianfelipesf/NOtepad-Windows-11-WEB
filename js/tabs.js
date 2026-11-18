@@ -66,7 +66,7 @@ function openFileObject(file,buf){
   var now2=Date.now();var t={name:file.name,path:file.name,handle:file.handle||null,content:text,modified:false,encoding:info.enc,eol:eol,createdAt:now2,updatedAt:now2};
   if(dotLog){var ts="\r\n"+stampNow()+"\r\n";t.content=text+ts;t.modified=true;}
   tabs.push(t);active=tabs.length-1;
-  syncEditor();renderTabs();updateStatus();scheduleSessionSave();
+  syncEditor();renderTabs();updateStatus();scheduleSessionSave();return t;
 }
 function pickOpen(){
   if(window.showOpenFilePicker){
