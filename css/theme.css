@@ -6,8 +6,16 @@
 [data-theme="midnight"]{--strip:#0a1628;--surface:#10203a;--line:#0c1a30;--sep:#24406b;--text:#dcebff;--text2:#a9c3e4;--text-dim:#5b7595;--hover:#18304f;--pressed:#142a46;--edit-bg:#0d1c33;--edit-bg2:#122642;--edit-fg:#dcebff;--dlg:#10203a;--ctl:#18304f;--field:#0d1c33;--code:#0a1729}
 [data-theme="ubuntu"]{--accent:#E95420;--strip:#2C001E;--surface:#3D2440;--line:#2C001E;--sep:#5E3A5A;--text:#F7F1EC;--text2:#DDC9C4;--text-dim:#9B7E94;--hover:#4E2F4D;--pressed:#452844;--edit-bg:#322031;--edit-bg2:#3A2639;--edit-fg:#F7F1EC;--dlg:#3D2440;--ctl:#4E2F4D;--field:#322031;--code:#2A1A29}
 [data-theme="firefox"]{--accent:#FF7139;--strip:#15141A;--surface:#23222B;--line:#15141A;--sep:#4B4A57;--text:#FBF1C7;--text2:#CFC5D8;--text-dim:#8A8198;--hover:#2E2C38;--pressed:#292834;--edit-bg:#1C1B22;--edit-bg2:#23222B;--edit-fg:#F5F0E6;--dlg:#23222B;--ctl:#2E2C38;--field:#1C1B22;--code:#17161C}
-[data-theme="firefox"] .strip{background:linear-gradient(90deg,#15141A 0%,#15141A 70%,#FF7139 82%,#FF2952 89%,#9400FF 95%,#0060DF 100%)}
 [data-theme="blackred"]{--accent:#E10600;--strip:#000000;--surface:#141414;--line:#000000;--sep:#3A0A0A;--text:#F5F5F5;--text2:#D6A5A5;--text-dim:#7A4A4A;--hover:#2A0D0D;--pressed:#220B0B;--edit-bg:#0D0D0D;--edit-bg2:#161616;--edit-fg:#F5F5F5;--dlg:#141414;--ctl:#2A0D0D;--field:#0D0D0D;--code:#1A0505}
+[data-theme="blackred"] .strip{background:linear-gradient(90deg,#000000 0%,#1A0505 35%,#5A0E00 70%,#B32300 100%)}
+[data-theme="blackred"] .btn.primary{background:linear-gradient(180deg,#FF4D00,#C10500);border-color:#FF4D00}
+[data-theme="blackred"] .tab.active{box-shadow:inset 0 -2px 0 #FF4D00}
+[data-theme="firefox"] .tab{border-top:2px solid transparent}
+[data-theme="firefox"] .tab:nth-child(5n+1){border-top-color:#FF7139}
+[data-theme="firefox"] .tab:nth-child(5n+2){border-top-color:#FF2952}
+[data-theme="firefox"] .tab:nth-child(5n+3){border-top-color:#9400FF}
+[data-theme="firefox"] .tab:nth-child(5n+4){border-top-color:#0060DF}
+[data-theme="firefox"] .tab:nth-child(5n){border-top-color:#00DDFF}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;background:var(--surface);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden;font-size:12px;user-select:none}
