@@ -46,11 +46,18 @@ function openSettings(){
     +"<div class='check'><input type='checkbox' id='oStatus' "+(settings.status?"checked":"")+"><label for='oStatus'>Barra de status</label></div>"
     +"<div class='check'><input type='checkbox' id='oStamp' "+(settings.stampOnSave?"checked":"")+"><label for='oStamp'>Inserir data/hora no fim ao salvar</label></div>"
     +"<div class='check'><input type='checkbox' id='oMd' "+(settings.mdPreview?"checked":"")+"><label for='oMd'>Prévia Markdown em arquivos .md</label></div>"
+    +"<div class='field' style='margin-top:12px'><label>Sincronização entre aparelhos (nuvem própria, opcional)</label></div>"
+    +"<div class='check'><input type='checkbox' id='oSyncOn' "+(settings.sync&&settings.sync.enabled?"checked":"")+"><label for='oSyncOn'>Ativar sincronização</label></div>"
+    +"<div class='field'><label>Endpoint REST (ex.: https://seu-servidor/renotepad)</label><input type='text' id='oSyncEp' value='"+esc((settings.sync&&settings.sync.endpoint)||"")+"' placeholder='https://…'></div>"
+    +"<div class='field'><label>Chave (token)</label><input type='text' id='oSyncTk' value='"+esc((settings.sync&&settings.sync.token)||"")+"' placeholder='opcional'></div>"
+    +"<div class='row' style='justify-content:flex-start'><button class='btn' id='oSyncNow'>Sincronizar agora</button></div>"
+    +"<p id='oSyncSt' style='margin-top:6px'>"+esc(syncStatusText())+"</p>"
     +"<p style='margin-top:10px'>Sem Copilot, sem telemetria. Só texto.</p>"
     +"<div class='row'><button class='btn' id='oAbout'>Sobre</button><button class='btn primary' id='oOk'>OK</button></div>");
   $("oTheme").value=settings.theme;
-  $("oOk").onclick=function(){settings.theme=$("oTheme").value;settings.wrap=$("oWrap").checked;settings.status=$("oStatus").checked;settings.stampOnSave=$("oStamp").checked;settings.mdPreview=$("oMd").checked;saveSettings();applyTheme();applyEditor();buildMenus();closeDlg();};
+  $("oOk").onclick=function(){settings.theme=$("oTheme").value;settings.wrap=$("oWrap").checked;settings.status=$("oStatus").checked;settings.stampOnSave=$("oStamp").checked;settings.mdPreview=$("oMd").checked;if(!settings.sync)settings.sync={enabled:false,endpoint:"",token:""};settings.sync.enabled=$("oSyncOn").checked;settings.sync.endpoint=$("oSyncEp").value.trim();settings.sync.token=$("oSyncTk").value.trim();saveSettings();applyTheme();applyEditor();buildMenus();closeDlg();};
   $("oAbout").onclick=function(){openAbout();};
+  if($("oSyncNow"))$("oSyncNow").onclick=function(){settings.sync.enabled=$("oSyncOn").checked;settings.sync.endpoint=$("oSyncEp").value.trim();settings.sync.token=$("oSyncTk").value.trim();saveSettings();SyncNow(function(m){var el=$("oSyncSt");if(el)el.textContent=m;});};
 }
 function openAbout(){
   dlg("<img class='about-logo' src='icons/icon-192.png' alt='Ícone do RENotepad' width='64' height='64'><h2 style='text-align:center'>RE:Notepad (web)</h2><p style='text-align:center'>Bloco de notas do Windows 10, com visual do Windows 11.<br>Versão web não oficial, inspirada no <b>RENotepad</b> de Nikko Gonzales.<br>Sem Copilot, sem telemetria.</p><div class='row' style='justify-content:center'><button class='btn primary' onclick='closeDlg()'>OK</button></div>");
@@ -66,7 +73,8 @@ function buildMenus(){
   item(F,"Abrir...","Ctrl+O",pickOpen);
   item(F,"Salvar","Ctrl+S",function(){saveTab(active,false);});
   item(F,"Salvar como...","Ctrl+Shift+S",openSaveAs);
-  item(F,"Salvar tudo",null,function(){var p=Promise.resolve();for(var i=0;i<tabs.length;i++){(function(k){p=p.then(function(){active=k;syncEditor();return saveTab(k,false);});})(i);}p.then(function(){renderTabs();});});
+  item(F,"Guardar guia no navegador",null,function(){vaultSaveTab(active);});
+  item(F,"Guardar tudo no navegador",null,function(){vaultSaveAll();});
   sep(F);
   item(F,"Imprimir...","Ctrl+P",function(){window.print();});
   sep(F);
@@ -74,8 +82,9 @@ function buildMenus(){
   item(F,"Reabrir guia fechada","Ctrl+Shift+T",reopenClosed);
   sep(F);
   item(F,"Gerenciar guias...",null,openManager);
+  item(F,"Guias guardadas no navegador...",null,openClosedPanel);
   item(F,"Propriedades da nota",null,openProps);
-  item(F,"Baixar todas (.zip)",null,function(){downloadZip(tabs.map(function(_,i){return i;}));});
+  item(F,"Baixar tudo (.zip)",null,function(){downloadZip(tabs.map(function(_,i){return i;}),{vault:true});});
   item(F,"Importar .zip...",null,function(){$("zipInput").click();});
   item(E,"Desfazer","Ctrl+Z",function(){document.execCommand("undo");});
   sep(E);
@@ -153,14 +162,51 @@ function openManager(){
   $("mDown").onclick=function(){var s=sel();if(s.length!==1)return;moveTab(s[0],Math.min(tabs.length-1,s[0]+1));refresh();};
   $("mCloseSel").onclick=function(){
     var s=sel();if(!s.length)return;
-    if(s.some(function(i){return tabs[i].modified;})){updateStatus("Há notas com alterações não salvas — feche pelo × da guia para confirmar");return;}
-    for(var k=s.length-1;k>=0;k--)tabs.splice(s[k],1);
+    if(s.some(function(i){return tabs[i].modified;})){updateStatus("Notas com alterações serão guardadas no navegador antes de fechar");}
+    for(var k=s.length-1;k>=0;k--){try{if(tabs.indexOf(tabs[s[k]])===active)tabs[s[k]].content=editor.value;tabs[s[k]].updatedAt=Date.now();vaultUpsert(tabs[s[k]]);}catch(e){}tabs.splice(s[k],1);}
     if(!tabs.length){untitledN=0;newTab();}active=Math.max(0,Math.min(active,tabs.length-1));
     syncEditor();renderTabs();updateStatus();scheduleSessionSave();refresh();
   };
   $("mZip").onclick=function(){var s=sel();if(!s.length){updateStatus("Marque ao menos uma nota");return;}downloadZip(s);};
 }
-function downloadZip(idxs){
+var closedSelId=null,closedEditing=false;
+function openClosedPanel(){
+  closedEditing=false;
+  var n=closedVault.length;
+  var sel=vaultGet(closedSelId)||closedVault[closedVault.length-1]||null;
+  if(sel)closedSelId=sel.id;
+  var rows=closedVault.slice().reverse().map(function(v){
+    return "<div class='crow"+(v.id===closedSelId?" sel":"")+"' data-id='"+v.id+"'><span class='cn'>"+esc(v.name)+"</span><span class='cd'>"+esc(fmtDT(v.closedAt||v.updatedAt||Date.now()))+" • "+String((v.content||"").length)+" car.</span></div>";
+  }).join("");
+  var detail="<p class='cempty'>Nenhuma guia guardada. No menu Arquivo, use “Guardar guia no navegador” para guardar a guia atual sem baixar arquivo.</p>";
+  if(sel){
+    var body=sel.content||"";
+    var prevHtml=isMarkdownFile(sel.path||sel.name)?mdRender(body):"<pre class='cpre'>"+esc(body.slice(0,2000))+(body.length>2000?"…":"")+"</pre>";
+    detail="<div class='field' style='margin-top:0'><label>Título</label><input type='text' id='cName' value='"+esc(sel.name)+"'></div>"
+      +"<div class='cmeta'>Guardada em "+esc(fmtDT(sel.closedAt||sel.updatedAt||Date.now()))+" • "+String(body.length)+" caracteres • "+esc(sel.encoding||"UTF-8")+" • "+esc(sel.eol||"CRLF")+"</div>"
+      +"<div class='cprev'>"+prevHtml+"</div>"
+      +"<div class='field'><label>Editar conteúdo</label><textarea id='cEdit' rows='8'>"+esc(body).replace(/<\/textarea/gi,"&lt;/textarea")+"</textarea></div>"
+      +"<div class='row' style='justify-content:flex-start'><button class='btn primary' id='cSaveEdit'>Salvar edição</button><button class='btn' id='cOpen'>Abrir como guia</button><button class='btn' id='cDel'>Excluir</button></div>";
+  }
+  dlg("<h2>Guias guardadas no navegador ("+n+")</h2>"
+    +"<p>As guias guardadas ficam salvas neste navegador. Entram no .zip dentro da pasta <b>guias-fechadas/</b>. Abrir como guia mantém a cópia aqui.</p>"
+    +"<div class='cwrap'><div class='clist'>"+(rows||"<p class='cempty'>—</p>")+"</div><div class='cdetail'>"+detail+"</div></div>"
+    +"<div class='row' style='justify-content:flex-start'><button class='btn' id='cOpenAll'>Abrir todas</button><button class='btn' id='cZip'>Baixar tudo (.zip)</button><button class='btn' id='cClear'>Apagar todas</button></div>"
+    +"<div class='row'><button class='btn primary' onclick='closeDlg()'>Fechar</button></div>");
+  function refresh(){closeDlg();closedEditing=false;openClosedPanel();}
+  Array.from(document.querySelectorAll(".crow")).forEach(function(r){
+    r.onclick=function(){closedSelId=r.dataset.id;refresh();};
+  });
+  function curSel(){return vaultGet(closedSelId);}
+  var b;
+  if((b=$("cSaveEdit")))b.onclick=function(){var s=curSel();if(!s)return;var nm=$("cName").value.trim();if(nm&&nm!==s.name)vaultRename(s.id,nm);vaultEditContent(s.id,$("cEdit").value);refresh();updateStatus("Edição guardada: "+s.name);};
+  if((b=$("cOpen")))b.onclick=function(){if(vaultReopen(closedSelId))refresh();};
+  if((b=$("cDel")))b.onclick=function(){var i=closedVault.findIndex(function(v){return v.id===closedSelId;});vaultRemove(closedSelId);closedSelId=(closedVault[Math.min(Math.max(0,i-1),closedVault.length-1)]||{}).id||null;refresh();};
+  if((b=$("cOpenAll")))b.onclick=function(){var ids=closedVault.map(function(v){return v.id;});ids.forEach(vaultReopen);closeDlg();};
+  if((b=$("cZip")))b.onclick=function(){closeDlg();downloadZip(tabs.map(function(_,i){return i;}),{vault:true});};
+  if((b=$("cClear")))b.onclick=function(){if(confirm("Apagar todas as guias guardadas no navegador?")){vaultClear();closedSelId=null;refresh();}};
+}
+function downloadZip(idxs,opts){
   if(!idxs||!idxs.length){updateStatus("Nada para baixar");return;}
   try{
     var files=idxs.map(function(i){
@@ -168,9 +214,11 @@ function downloadZip(idxs){
       var body=(tabs.indexOf(t)===active)?editor.value:(t.content||"");
       return {name:sanitizeName(t.path||t.name),ext:isMarkdownFile(t.path||t.name)?".md":".txt",body:body,tab:t};
     }).filter(Boolean);
+    var nVault=0;
+    if(opts&&opts.vault){closedVault.forEach(function(v){files.push({name:sanitizeName(v.path||v.name),ext:isMarkdownFile(v.path||v.name)?".md":".txt",body:v.content||"",tab:v,folder:"guias-fechadas/"});nVault++;});}
     var used={},entries=files.map(function(f){
-      var base=f.name;if(used[base]){used[base]++;base=base+" ("+used[base]+")";}else used[base]=1;
-      return {name:base+f.ext,body:toEol(f.body,(f.tab.eol||"CRLF")),tab:f.tab};
+      var base=f.name,key=(f.folder||"")+base;if(used[key]){used[key]++;base=base+" ("+used[key]+")";}else used[key]=1;
+      return {name:(f.folder||"")+base+f.ext,body:toEol(f.body,((f.tab&&f.tab.eol)||"CRLF")),tab:f.tab};
     });
     var csv="arquivo;titulo;criado;editado;caracteres\r\n"+entries.map(function(e){
       return [e.name,e.tab.name,fmtDT(e.tab.createdAt||Date.now()),fmtDT(e.tab.updatedAt||e.tab.createdAt||Date.now()),String(e.body.length)].map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(";");
@@ -183,7 +231,7 @@ function downloadZip(idxs){
     var d=new Date();function p(n){return (n<10?"0":"")+n;}
     a.download="renotepad-notas-"+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"-"+p(d.getHours())+p(d.getMinutes())+".zip";
     document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},4000);
-    updateStatus(nNotes+(nNotes===1?" nota baixada":" notas baixadas")+" (.zip)");
+    updateStatus(nNotes+(nNotes===1?" nota aberta":" notas abertas")+(nVault?" + "+nVault+(nVault===1?" guardada (pasta guias-fechadas)":" guardadas (pasta guias-fechadas)"):"")+" no .zip");
   }catch(e){updateStatus("Falha ao gerar o .zip");}
 }
 function importZipData(buf){
@@ -197,6 +245,7 @@ function importZipData(buf){
   entries.forEach(function(e){
     if(e.name==="notas.json"||e.name==="indice.csv")return;
     if(/\/$/.test(e.name))return;
+    if(/^guias-fechadas\//.test(e.name)){try{var vb=new Uint8Array(e.body),vi=detectEncoding(vb),vt=decodeBuf(vb,vi);vaultUpsert({name:e.name.replace(/^.*\//,"").replace(/\.(txt|md)$/i,"")||"Sem título",path:null,content:vt,encoding:vi.enc,eol:detectEol(vt),createdAt:Date.now(),updatedAt:Date.now()});n++;}catch(x){}return;}
     var m=byFile[e.name];
     var base=e.name.replace(/^.*\//,"").replace(/\.(txt|md)$/i,"")||"Sem título";
     var before=tabs.length;
@@ -228,15 +277,29 @@ function openAllTabs(){
   c.style.left=Math.max(8,Math.min(r.left,innerWidth-330))+"px";c.style.top=(r.bottom+6)+"px";c.style.right="auto";
   c.classList.add("show");
 }
+function openTabMenu(i,x,y){
+  var c=$("ctx");c.innerHTML="";c.classList.remove("tabs-list");
+  [["Ativar guia",function(){active=i;syncEditor();renderTabs();updateStatus();scheduleSessionSave();}],
+   ["Mover para a esquerda",function(){moveTab(i,Math.max(0,i-1));}],
+   ["Mover para a direita",function(){moveTab(i,Math.min(tabs.length-1,i+1));}],
+   ["Guardar no navegador",function(){vaultSaveTab(i);}],
+   ["Fechar guia",function(){closeTab(i);}]].forEach(function(p){
+    var b=document.createElement("button");b.textContent=p[0];
+    b.onclick=function(){c.classList.remove("show");p[1]();};c.appendChild(b);});
+  c.style.left=Math.max(4,Math.min(x||8,window.innerWidth-200))+"px";
+  c.style.top=Math.max(40,(y||40))+"px";c.style.right="auto";
+  c.classList.add("show");
+}
 function closeMenus(){document.querySelectorAll(".menu.show").forEach(function(m){m.classList.remove("show");});document.querySelectorAll(".mi.open").forEach(function(b){b.classList.remove("open");});}
 function hideBoxes(){$("findBox").classList.remove("show");$("replaceBox").classList.remove("show");}
 function bindGlobalEvents(){
   document.querySelectorAll(".mi").forEach(function(b){
-    b.onclick=function(e){e.stopPropagation();var m=$("menu-"+b.dataset.m),was=m.classList.contains("show");closeMenus();if(!was){var r=b.getBoundingClientRect();m.style.left=r.left+"px";m.style.top="32px";m.classList.add("show");b.classList.add("open");}};
+    b.onclick=function(e){e.stopPropagation();var m=$("menu-"+b.dataset.m),was=m.classList.contains("show");closeMenus();if(!was){var r=b.getBoundingClientRect();m.style.top="32px";m.classList.add("show");var w=m.offsetWidth||240;m.style.left=Math.max(4,Math.min(r.left,window.innerWidth-w-4))+"px";b.classList.add("open");}};
   });
   $("btnSettings").onclick=function(e){e.stopPropagation();var m=$("menu-settings"),was=m.classList.contains("show");closeMenus();if(!was)m.classList.add("show");};
   document.addEventListener("click",function(e){if(!e.target.closest(".menu")&&!e.target.closest(".mi")&&e.target.id!=="btnSettings")closeMenus();if(!e.target.closest(".small-find")&&!e.target.closest(".ctx"))$("ctx").classList.remove("show");});
   $("btnNewTab").onclick=function(){newTab();};
+  tabsEl.addEventListener("contextmenu",function(e){e.preventDefault();var el=e.target.closest?e.target.closest(".tab"):null;openTabMenu(el?+el.dataset.idx:active,e.clientX,e.clientY);});
   $("btnAllTabs").onclick=function(e){e.stopPropagation();openAllTabs();};
   $("zipInput").addEventListener("change",function(e){Array.from(e.target.files).forEach(function(f){f.arrayBuffer().then(function(b){importZipData(b);});});e.target.value="";});
   $("fileInput").addEventListener("change",function(e){

@@ -5,7 +5,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp
 function debounce(fn,ms){var t=null;return function(){clearTimeout(t);var a=arguments,s=this;t=setTimeout(function(){fn.apply(s,a);},ms);};}
 function stampNow(){var n=new Date();return n.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+" "+n.toLocaleDateString();}
 var SET_KEY="renotepad2.settings", SES_KEY="renotepad2.session";
-var settings={wrap:false,status:true,theme:"dark",face:"Consolas",size:15,matchCase:false,wrapAround:true,stampOnSave:false,mdPreview:false,mdBar:true};
+var settings={wrap:false,status:true,theme:"dark",face:"Consolas",size:15,matchCase:false,wrapAround:true,stampOnSave:false,mdPreview:false,mdBar:true,sync:{enabled:false,endpoint:"",token:""}};
 function loadSettings(){
   try{
     var old=JSON.parse(localStorage.getItem("renotepad")||"null");
@@ -32,7 +32,7 @@ function saveSession(){
   try{
     if(typeof tabs==="undefined")return;
     var data={v:1,active:active,zoom:zoom,tabs:tabs.map(function(t){
-      return {name:t.name,path:t.path,content:(typeof editor!=="undefined"&&tabs.indexOf(t)===active)?editor.value:t.content,encoding:t.encoding,eol:t.eol,modified:t.modified,createdAt:t.createdAt,updatedAt:t.updatedAt};
+      return {name:t.name,path:t.path,content:(typeof editor!=="undefined"&&tabs.indexOf(t)===active)?editor.value:t.content,encoding:t.encoding,eol:t.eol,modified:t.modified,createdAt:t.createdAt,updatedAt:t.updatedAt,vaultId:t.vaultId||null};
     })};
     var s=JSON.stringify(data);
     if(s.length>4500000){

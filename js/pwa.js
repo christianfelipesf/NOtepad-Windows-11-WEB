@@ -11,7 +11,7 @@
 
   function syncThemeColor() {
     try {
-      var colors = { dark: "#0c0c0c", light: "#eeeeee", white: "#ffffff" };
+      var colors = { dark: "#0c0c0c", light: "#eeeeee", white: "#ffffff", sepia: "#e8dcc3", midnight: "#0a1628" };
       var m = document.getElementById("metaTheme");
       if (m && typeof settings !== "undefined") m.setAttribute("content", colors[settings.theme] || "#0c0c0c");
     } catch (e) {}
@@ -57,7 +57,21 @@
   try {
     if ("serviceWorker" in navigator && /^https?:$/.test(window.location.protocol)) {
       window.addEventListener("load", function () {
-        navigator.serviceWorker.register("sw.js").catch(function () {});
+        navigator.serviceWorker.register("sw.js").then(function (reg) {
+          function watch(w) {
+            if (!w) return;
+            if (w.state === "installed" && navigator.serviceWorker.controller) showUpdateBar(w);
+            w.addEventListener("statechange", function () {
+              if (w.state === "installed" && navigator.serviceWorker.controller) showUpdateBar(w);
+            });
+          }
+          reg.addEventListener("updatefound", function () { watch(reg.installing); });
+          watch(reg.waiting);
+          setInterval(function () { try { reg.update(); } catch (e) {} }, 60 * 60 * 1000);
+          document.addEventListener("visibilitychange", function () {
+            if (!document.hidden) { try { reg.update(); } catch (e) {} }
+          });
+        }).catch(function () {});
       });
     }
   } catch (e) {}
@@ -73,6 +87,42 @@
     }
   } catch (e) {}
   syncThemeColor();
+
+  var updateSeen = false;
+  function showUpdateBar(worker) {
+    if (updateSeen) return;
+    updateSeen = true;
+    try {
+      var bar = document.getElementById("updatebar");
+      if (!bar) {
+        bar = document.createElement("div");
+        bar.id = "updatebar";
+        bar.className = "updatebar";
+        var s = document.createElement("span");
+        s.textContent = "Nova versão disponível.";
+        bar.appendChild(s);
+        var b = document.createElement("button");
+        b.className = "btn primary";
+        b.textContent = "Atualizar";
+        b.onclick = function () {
+          try { worker.postMessage("SKIP_WAITING"); }
+          catch (e) { window.location.reload(); }
+        };
+        bar.appendChild(b);
+        document.body.appendChild(bar);
+      }
+      bar.classList.add("show");
+    } catch (e) {}
+  }
+
+  try {
+    if ("serviceWorker" in navigator) {
+      var reloaded = false;
+      navigator.serviceWorker.addEventListener("controllerchange", function () {
+        if (!reloaded) { reloaded = true; window.location.reload(); }
+      });
+    }
+  } catch (e) {}
 
   window.__reInstall = installApp;
 })();

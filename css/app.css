@@ -75,11 +75,51 @@ body.dragging .editor-wrap{outline:2px dashed var(--accent);outline-offset:-10px
 .mrow .mc{flex-shrink:0;color:var(--text-dim);font-size:11px;min-width:70px;text-align:right}
 @media (max-width:900px){#stDates{display:none}}
 @media (max-width:640px){#stLines{display:none}#stTheme{display:none}}
+.menu{max-width:calc(100vw - 16px)}
+.small-find{max-width:calc(100vw - 24px)}
+.tabs{-webkit-touch-callout:none}
+.tab{-webkit-tap-highlight-color:transparent}
+.updatebar{position:fixed;left:50%;transform:translateX(-50%);bottom:44px;z-index:300;background:var(--dlg);border:1px solid var(--sep);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.45);padding:10px 12px;display:none;align-items:center;gap:10px;font-size:12px;color:var(--text);max-width:calc(100vw - 32px)}
+.updatebar.show{display:flex}
+@media (pointer:coarse){
+.tab{min-width:120px;height:40px}
+.tab .x{width:32px;height:32px;font-size:14px}
+.newtab{width:44px;height:40px}
+.mi{padding:10px 12px}
+.menu button{padding:11px 10px}
+.ctx button{padding:11px 10px}
+#editor{font-size:16px}
+.st{padding:0 10px}
+}
 .ctx{position:fixed;background:var(--dlg);border:1px solid var(--sep);border-radius:8px;padding:4px;z-index:200;min-width:180px;display:none;box-shadow:0 8px 24px rgba(0,0,0,.45)}
 .ctx.show{display:block}
 .ctx button{display:block;width:100%;text-align:left;padding:7px 10px;border-radius:4px;font-size:12px}
 .ctx button:hover{background:var(--hover)}
 .ctx.tabs-list{max-height:50vh;overflow:auto;min-width:260px;max-width:330px}
+.dlg:has(.cwrap){max-width:720px}
+.dlg .row{flex-wrap:wrap}
+.cwrap{display:flex;gap:12px;margin:8px 0}
+.clist{width:200px;flex-shrink:0;overflow:auto;border:1px solid var(--sep);border-radius:6px;max-height:44vh;min-height:160px}
+.crow{padding:8px 10px;border-bottom:1px solid var(--sep);cursor:pointer}
+.crow:last-child{border-bottom:none}
+.crow:hover{background:var(--hover)}
+.crow.sel{background:var(--hover);box-shadow:inset 2px 0 0 var(--accent)}
+.crow .cn{display:block;font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crow .cd{display:block;font-size:11px;color:var(--text2);margin-top:2px}
+.cdetail{flex:1;min-width:0;overflow:auto;max-height:44vh;min-height:160px}
+.cmeta{font-size:11px;color:var(--text2);margin:6px 0}
+.cprev{border:1px solid var(--sep);border-radius:6px;padding:10px 12px;font-size:12px;line-height:1.6;max-height:180px;overflow:auto;background:var(--field);color:var(--text)}
+.cprev .cpre{margin:0;font-family:inherit;white-space:pre-wrap;word-break:break-word;font-size:12px;color:var(--text)}
+.cprev h1{font-size:17px;margin:8px 0 6px}.cprev h2{font-size:15px;margin:8px 0 6px}.cprev h3{font-size:13px;margin:6px 0 4px}
+.cprev p{margin:6px 0}.cprev ul,.cprev ol{margin:6px 0 6px 20px}
+.cprev code{background:var(--code);border-radius:4px;padding:1px 5px;font-family:Consolas,monospace;font-size:12px}
+.cprev pre{background:var(--code);border-radius:6px;padding:8px;overflow:auto;margin:8px 0}
+.cprev pre code{background:none;padding:0}
+.cprev blockquote{border-left:3px solid var(--sep);margin:6px 0;padding:2px 10px;color:var(--text2)}
+.cprev a{color:var(--accent)}
+.cempty{font-size:12px;color:var(--text2)}
+#cEdit{width:100%;box-sizing:border-box;background:var(--field);border:1px solid var(--sep);border-radius:4px;color:var(--text);padding:8px;font-size:12px;font-family:Consolas,monospace;resize:vertical}
+@media (max-width:640px){.cwrap{flex-direction:column}.clist{width:100%;max-height:150px}}
 .mi,.gear,.newtab,.mdbar button,.menu button,.ctx button,.btn,.tab,.tab .x,.st.clickable{transition:background-color .12s ease-out}
 .btn.primary{transition:filter .12s ease-out}
 .field input[type=text],.field input[type=number],.field select{transition:border-bottom-color .12s ease-out}

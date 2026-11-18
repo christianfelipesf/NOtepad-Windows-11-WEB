@@ -1,6 +1,7 @@
 "use strict";
 /* Service worker: deixa o RENotepad instalável e usável offline. */
-var CACHE = "renotepad-v1";
+var APP_VERSION = "v2";
+var CACHE = "renotepad-v2";
 var SHELL = [
   "./",
   "./index.html",
@@ -9,6 +10,7 @@ var SHELL = [
   "./css/app.css",
   "./js/core.js",
   "./js/encoding.js",
+  "./js/zip.js",
   "./js/markdown.js",
   "./js/tabs.js",
   "./js/editor.js",
@@ -34,6 +36,10 @@ self.addEventListener("activate", function (e) {
       return Promise.all(keys.map(function (k) { return k === CACHE ? null : caches.delete(k); }));
     }).then(function () { return self.clients.claim(); })
   );
+});
+self.addEventListener("message", function (e) {
+  if (e.data === "SKIP_WAITING") self.skipWaiting();
+  if (e.data === "GET_VERSION" && e.source) e.source.postMessage({ version: APP_VERSION });
 });
 self.addEventListener("fetch", function (e) {
   var req = e.request;

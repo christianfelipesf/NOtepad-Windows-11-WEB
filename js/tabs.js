@@ -112,13 +112,28 @@ function saveTab(i,withPicker){
 function askSave(i){
   return new Promise(function(res){
     var t=tabs[i];
-    dlg("<h2>RENotepad</h2><p>Deseja salvar as alterações em "+esc(t.path||t.name)+ "?</p><div class='row'><button class='btn primary' id='dSave'>Salvar</button><button class='btn' id='dNo'>Não salvar</button><button class='btn' id='dCancel'>Cancelar</button></div>");
+    dlg("<h2>RENotepad</h2><p>Deseja salvar as alterações em "+esc(t.path||t.name)+ "?</p><div class='row'><button class='btn primary' id='dSave'>Salvar arquivo</button><button class='btn' id='dVault'>Guardar no navegador</button><button class='btn' id='dNo'>Não salvar</button><button class='btn' id='dCancel'>Cancelar</button></div>");
     $("dSave").onclick=function(){closeDlg();saveTab(i,false).then(function(ok){res(ok?"save":"cancel");});};
     $("dNo").onclick=function(){closeDlg();res("nosave");};
+    $("dVault").onclick=function(){closeDlg();if(tabs.indexOf(tabs[i])===active)tabs[i].content=editor.value;tabs[i].updatedAt=Date.now();vaultUpsert(tabs[i]);res("nosave");};
     $("dCancel").onclick=function(){closeDlg();res("cancel");};
   });
 }
+var CLOSED_KEY="renotepad2.closed";
 var closedStack=[];
+var closedVault=[];
+function loadClosedVault(){try{var d=JSON.parse(localStorage.getItem(CLOSED_KEY)||"null");if(d&&Array.isArray(d.items))closedVault=d.items.filter(function(e){return e&&typeof e.content==="string";});}catch(e){closedVault=[];}return closedVault;}
+function saveClosedVault(){try{closedVault=closedVault.slice(-50);localStorage.setItem(CLOSED_KEY,JSON.stringify({v:1,items:closedVault}));}catch(e){}}
+function vaultEntryOf(t){return {id:"c"+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36),name:t.name||"Sem título",path:t.path||null,content:t.content||"",encoding:t.encoding||"UTF-8",eol:t.eol||"CRLF",createdAt:t.createdAt||Date.now(),updatedAt:t.updatedAt||t.createdAt||Date.now(),closedAt:Date.now()};}
+function vaultUpsert(t){function touch(e){e.content=t.content;e.updatedAt=Date.now();e.closedAt=Date.now();e.name=t.name;e.path=t.path;saveClosedVault();t.vaultId=e.id;return e;}if(t.vaultId){for(var j=0;j<closedVault.length;j++){if(closedVault[j].id===t.vaultId)return touch(closedVault[j]);}t.vaultId=null;}var key=t.path||t.name;for(var k=0;k<closedVault.length;k++){if((closedVault[k].path||closedVault[k].name)===key)return touch(closedVault[k]);}var e=vaultEntryOf(t);closedVault.push(e);saveClosedVault();t.vaultId=e.id;return e;}
+function vaultSaveTab(i){var t=tabs[i];if(!t)return null;if(tabs.indexOf(t)===active)t.content=editor.value;t.updatedAt=Date.now();var e=vaultUpsert(t);renderTabs();updateStatus("Guardada no navegador: "+t.name);scheduleSessionSave();return e;}
+function vaultSaveAll(){if(!tabs.length)return 0;if(tabs.indexOf(cur())===active)cur().content=editor.value;var n=0;tabs.forEach(function(t){t.updatedAt=t.updatedAt||Date.now();vaultUpsert(t);n++;});updateStatus(n+(n===1?" guia guardada no navegador":" guias guardadas no navegador"));return n;}
+function vaultGet(id){for(var k=0;k<closedVault.length;k++){if(closedVault[k].id===id)return closedVault[k];}return null;}
+function vaultRename(id,name){var e=vaultGet(id);if(!e||!String(name).trim())return false;e.name=String(name).trim();e.updatedAt=Date.now();saveClosedVault();return true;}
+function vaultEditContent(id,content){var e=vaultGet(id);if(!e)return false;e.content=String(content);e.updatedAt=Date.now();saveClosedVault();return true;}
+function vaultRemove(id){for(var k=0;k<closedVault.length;k++){if(closedVault[k].id===id){closedVault.splice(k,1);saveClosedVault();return true;}}return false;}
+function vaultClear(){closedVault.length=0;saveClosedVault();}
+function vaultReopen(id){var e=vaultGet(id);if(!e)return false;untitledN++;var t={name:e.name,fallback:e.name,path:e.path,handle:null,content:e.content,modified:false,encoding:e.encoding,eol:e.eol,createdAt:e.createdAt,updatedAt:e.updatedAt,vaultId:e.id};tabs.push(t);active=tabs.length-1;syncEditor();renderTabs();updateStatus("Reaberta: "+e.name);scheduleSessionSave();return true;}
 function pushClosed(i){
   var t=tabs[i];if(!t)return;
   if(tabs.indexOf(t)===active)t.content=editor.value;
