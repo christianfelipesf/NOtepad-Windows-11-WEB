@@ -58,6 +58,15 @@ function makeZip(entries){
   ev.setUint32(12,cdSize,true);ev.setUint32(16,cdStart,true);ev.setUint16(20,0,true);
   return new Blob(parts,{type:"application/zip"});
 }
+function zipDecodeName(bytes,utf8){
+  if(utf8)return zipDecode(bytes);
+  if(typeof TextDecoder==="undefined")return zipDecode(bytes);
+  try{return new TextDecoder("utf-8",{fatal:true}).decode(bytes);}
+  catch(e){
+    try{return new TextDecoder("windows-1252").decode(bytes);}
+    catch(x){return zipDecode(bytes);}
+  }
+}
 function parseZip(buf){
   var bytes=(buf instanceof Uint8Array)?buf:new Uint8Array(buf);
   if(bytes.length<22)throw new Error("zip curto");
@@ -72,7 +81,7 @@ function parseZip(buf){
     var method=dv.getUint16(p+10,true),csize=dv.getUint32(p+20,true);
     var nlen=dv.getUint16(p+28,true),elen=dv.getUint16(p+30,true),clen=dv.getUint16(p+32,true);
     var lho=dv.getUint32(p+42,true);
-    var name=zipDecode(bytes.subarray(p+46,p+46+nlen));
+    var name=zipDecodeName(bytes.subarray(p+46,p+46+nlen),(dv.getUint16(p+8,true)&0x0800)!==0);
     var nlen2=dv.getUint16(lho+26,true),elen2=dv.getUint16(lho+28,true);
     var ds=lho+30+nlen2+elen2;
     if(method!==0)throw new Error("compactação não suportada: "+name);

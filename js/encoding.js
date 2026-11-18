@@ -17,7 +17,7 @@ function decodeBuf(buf,info){
 function detectEol(text){
   var crlf=(text.match(/\r\n/g)||[]).length;
   var lone=(text.match(/\r(?!\n)/g)||[]).length;
-  var lf=(text.match(/(?<!\r)\n/g)||[]).length;
+  var lf=(text.match(/\n/g)||[]).length-crlf;
   if(crlf>=lf&&crlf>=lone)return "CRLF";
   if(lf>=crlf&&lf>=lone)return "LF";
   return "CR";

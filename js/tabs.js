@@ -58,12 +58,13 @@ function markModified(){
 }
 function openFileObject(file,buf){
   if(buf.byteLength>=1073741824){alert("Arquivo de 1 GiB ou mais não suportado.");return;}
-  if(/\.zip$/i.test((file&&file.name)||"")){importZipData(buf);return;}
-  var u8=new Uint8Array(buf),info=detectEncoding(u8),text=decodeBuf(u8,info),eol=detectEol(text);
-  for(var k=0;k<tabs.length;k++){if(tabs[k].path===file.name){active=k;syncEditor();renderTabs();updateStatus();return;}}
+  if(/\.zip$/i.test((file&&file.name)||"")){return importZipData(buf);}
+  var u8=new Uint8Array(buf),info=detectEncoding(u8),text=decodeBuf(u8,info),eol=detectEol(text),dotLog=text.slice(0,4)===".LOG";
+  if(text.indexOf("\0")>=0){alert("Arquivo binário não suportado: "+((file&&file.name)||""));return false;}
+  for(var k=0;k<tabs.length;k++){if(tabs[k].path===file.name){active=k;if(!tabs[k].modified){tabs[k].content=text;tabs[k].encoding=info.enc;tabs[k].eol=eol;tabs[k].modified=false;if(dotLog){tabs[k].content=text+"\r\n"+stampNow()+"\r\n";tabs[k].modified=true;}}syncEditor();renderTabs();updateStatus();scheduleSessionSave();return tabs[k];}}
   untitledN++;
   var now2=Date.now();var t={name:file.name,path:file.name,handle:file.handle||null,content:text,modified:false,encoding:info.enc,eol:eol,createdAt:now2,updatedAt:now2};
-  if(text.slice(0,4)===".LOG"){var ts="\r\n"+stampNow()+"\r\n";t.content=text+ts;t.modified=true;}
+  if(dotLog){var ts="\r\n"+stampNow()+"\r\n";t.content=text+ts;t.modified=true;}
   tabs.push(t);active=tabs.length-1;
   syncEditor();renderTabs();updateStatus();scheduleSessionSave();
 }
@@ -104,7 +105,7 @@ function saveTab(i,withPicker){
   }
   return Promise.resolve((function(){
     var blob=new Blob([bytes],{type:"text/plain"}),a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);a.download=t.path||(t.name+".txt");a.click();
+    a.href=URL.createObjectURL(blob);a.download=t.path||(t.name+".txt");document.body.appendChild(a);a.click();
     setTimeout(function(){URL.revokeObjectURL(a.href);},4000);
     return done(true);
   })());
