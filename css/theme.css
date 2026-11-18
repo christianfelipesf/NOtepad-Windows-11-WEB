@@ -7,11 +7,11 @@
 [data-theme="ubuntu"]{--accent:#E95420;--strip:#2C001E;--surface:#3D2440;--line:#2C001E;--sep:#5E3A5A;--text:#F7F1EC;--text2:#DDC9C4;--text-dim:#9B7E94;--hover:#4E2F4D;--pressed:#452844;--edit-bg:#322031;--edit-bg2:#3A2639;--edit-fg:#F7F1EC;--dlg:#3D2440;--ctl:#4E2F4D;--field:#322031;--code:#2A1A29}
 [data-theme="firefox"]{--accent:#FF7139;--strip:#15141A;--surface:#23222B;--line:#15141A;--sep:#4B4A57;--text:#FBF1C7;--text2:#CFC5D8;--text-dim:#8A8198;--hover:#2E2C38;--pressed:#292834;--edit-bg:#1C1B22;--edit-bg2:#23222B;--edit-fg:#F5F0E6;--dlg:#23222B;--ctl:#2E2C38;--field:#1C1B22;--code:#17161C}
 [data-theme="blackred"]{--accent:#E10600;--strip:#000000;--surface:#141414;--line:#000000;--sep:#3A0A0A;--text:#F5F5F5;--text2:#D6A5A5;--text-dim:#7A4A4A;--hover:#2A0D0D;--pressed:#220B0B;--edit-bg:#0D0D0D;--edit-bg2:#161616;--edit-fg:#F5F5F5;--dlg:#141414;--ctl:#2A0D0D;--field:#0D0D0D;--code:#1A0505}
-[data-theme="blackred"] .strip{background:linear-gradient(90deg,#000000 0%,#1A0505 30%,#5A0E00 60%,#B32300 80%,#5A0E00 100%);background-size:200% 100%;animation:blackred-fire 14s ease-in-out infinite alternate}
-@keyframes blackred-fire{from{background-position:0% 0}to{background-position:100% 0}}
+[data-theme="blackred"] .strip{background:linear-gradient(180deg,rgba(255,140,50,.14) 0%,rgba(0,0,0,0) 22%),linear-gradient(105deg,rgba(0,0,0,0) 38%,rgba(195,35,0,.5) 46%,rgba(255,106,0,.8) 50%,rgba(195,35,0,.5) 54%,rgba(0,0,0,0) 62%),linear-gradient(0deg,#000000 0%,#1c0704 55%,#000000 100%);background-size:100% 100%,250% 100%,100% 100%;box-shadow:inset 0 1px 0 rgba(255,150,60,.5),inset 0 -4px 10px rgba(0,0,0,.9),0 3px 14px rgba(195,35,0,.4);animation:blackred-fire 12s ease-in-out infinite alternate}
+@keyframes blackred-fire{from{background-position:0 0,115% 0,0 0}to{background-position:0 0,-15% 0,0 0}}
 @media (prefers-reduced-motion:reduce){[data-theme="blackred"] .strip{animation:none}}
 [data-theme="blackred"] .btn.primary{background:linear-gradient(180deg,#FF4D00,#C10500);border-color:#FF4D00}
-[data-theme="blackred"] .tab.active{box-shadow:inset 0 -2px 0 #FF4D00}
+[data-theme="blackred"] .tab.active{background:linear-gradient(180deg,#33120a 0%,#1c0b06 45%,#101010 100%);box-shadow:inset 0 1px 0 rgba(255,150,60,.55),inset 0 -2px 0 #FF4D00,inset 0 -8px 12px -6px rgba(255,80,0,.45)}
 [data-theme="firefox"] .tab{border-top:2px solid transparent}
 [data-theme="firefox"] .tab:nth-child(5n+1){border-top-color:#FF7139}
 [data-theme="firefox"] .tab:nth-child(5n+2){border-top-color:#FF2952}

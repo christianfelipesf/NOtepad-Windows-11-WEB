@@ -3,7 +3,7 @@
 function dlg(html){$("dlgBox").innerHTML=html;$("ovl").classList.add("show");}
 function closeDlg(){$("ovl").classList.remove("show");}
 function updateStatus(msg,link){
-  var t=cur();if(!t)return;
+  var t=cur();if(!t){var mm=$("stMsg");if(mm&&typeof msg==="string")mm.textContent=msg;return;}
   var val=editor.value;
   var pos=editor.selectionStart,upTo=val.slice(0,pos),lines=upTo.split("\n");
   $("stPos").textContent="Ln "+lines.length+", Col "+(lines[lines.length-1].length+1);
@@ -207,21 +207,25 @@ function openClosedPanel(){
   if((b=$("cClear")))b.onclick=function(){if(confirm("Apagar todas as guias guardadas no navegador?")){vaultClear();closedSelId=null;refresh();}};
 }
 function downloadZip(idxs,opts){
-  if(!idxs||!idxs.length){updateStatus("Nada para baixar");return;}
   try{
-    var files=idxs.map(function(i){
+    var files=(idxs||[]).map(function(i){
       var t=tabs[i];if(!t)return null;
       var body=(tabs.indexOf(t)===active)?editor.value:(t.content||"");
       return {name:sanitizeName(t.path||t.name),ext:isMarkdownFile(t.path||t.name)?".md":".txt",body:body,tab:t};
     }).filter(Boolean);
     var nVault=0;
     if(opts&&opts.vault){closedVault.forEach(function(v){files.push({name:sanitizeName(v.path||v.name),ext:isMarkdownFile(v.path||v.name)?".md":".txt",body:v.content||"",tab:v,folder:"guias-fechadas/"});nVault++;});}
+    if(!files.length){updateStatus("Nada para baixar");return;}
     var used={},entries=files.map(function(f){
-      var base=f.name,key=(f.folder||"")+base;if(used[key]){used[key]++;base=base+" ("+used[key]+")";}else used[key]=1;
-      return {name:(f.folder||"")+base+f.ext,body:toEol(f.body,((f.tab&&f.tab.eol)||"CRLF")),tab:f.tab};
+      var stem=(f.name||"").replace(/\.(txt|md)$/i,"")||"Sem título";
+      if(stem.length>120)stem=stem.slice(0,120);
+      var cand=stem,k=2,key=(f.folder||"")+cand.toLowerCase()+f.ext.toLowerCase();
+      while(used[key]){cand=stem+" ("+(k++)+")";key=(f.folder||"")+cand.toLowerCase()+f.ext.toLowerCase();}
+      used[key]=1;
+      return {name:(f.folder||"")+cand+f.ext,body:toEol(f.body,((f.tab&&f.tab.eol)||"CRLF")),tab:f.tab};
     });
     var csv="arquivo;titulo;criado;editado;caracteres\r\n"+entries.map(function(e){
-      return [e.name,e.tab.name,fmtDT(e.tab.createdAt||Date.now()),fmtDT(e.tab.updatedAt||e.tab.createdAt||Date.now()),String(e.body.length)].map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(";");
+      return [e.name,e.tab.name,fmtDT(e.tab.createdAt||Date.now()),fmtDT(e.tab.updatedAt||e.tab.createdAt||Date.now()),String(e.body.length)].map(function(c){var s=String(c);if(/^[=+\-@]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}).join(";");
     }).join("\r\n");
     var nNotes=entries.length;
     entries.push({name:"indice.csv",body:csv});
@@ -236,30 +240,52 @@ function downloadZip(idxs,opts){
 }
 function importZipData(buf){
   var entries;
-  try{entries=parseZip(buf);}catch(e){updateStatus("Não foi possível importar: .zip inválido ou compactado");return;}
+  try{entries=parseZip(buf);}catch(e){updateStatus("Não foi possível importar: "+((e&&e.message)||"arquivo inválido"));return {n:0,s:0};}
   var byFile={};
   entries.forEach(function(e){
     if(e.name==="notas.json"){try{var mj=JSON.parse(zipDecode(e.body));(mj.files||[]).forEach(function(m){byFile[m.file]=m;});}catch(x){}}
   });
-  var n=0;
+  function takenTab(x){for(var i=0;i<tabs.length;i++){if(tabs[i].path===x)return true;}return false;}
+  function takenVault(x){for(var i=0;i<closedVault.length;i++){if((closedVault[i].path||closedVault[i].name)===x)return true;}return false;}
+  function uniq(base,taken,claimed){var u=base,k=2;while(claimed[u]||taken(u)){u=base+" ("+(k++)+")";}claimed[u]=1;return u;}
+  var n=0,s=0,claimed={},claimedV={};
   entries.forEach(function(e){
     if(e.name==="notas.json"||e.name==="indice.csv")return;
     if(/\/$/.test(e.name))return;
-    if(/^guias-fechadas\//.test(e.name)){try{var vb=new Uint8Array(e.body),vi=detectEncoding(vb),vt=decodeBuf(vb,vi);vaultUpsert({name:e.name.replace(/^.*\//,"").replace(/\.(txt|md)$/i,"")||"Sem título",path:null,content:vt,encoding:vi.enc,eol:detectEol(vt),createdAt:Date.now(),updatedAt:Date.now()});n++;}catch(x){}return;}
+    if(/^__MACOSX\//.test(e.name)||/(^|\/)\._/.test(e.name)){s++;return;}
     var m=byFile[e.name];
-    var base=e.name.replace(/^.*\//,"").replace(/\.(txt|md)$/i,"")||"Sem título";
-    var before=tabs.length;
-    openFileObject({name:base},e.body.buffer);
-    var t=tabs.length>before?tabs[tabs.length-1]:null;
-    if(!t){for(var k=0;k<tabs.length;k++){if(tabs[k].path===base){t=tabs[k];break;}}}
-    if(t){
-      if(m&&m.title)t.name=m.title;
-      if(m&&m.createdAt)t.createdAt=Date.parse(m.createdAt)||t.createdAt;
-      if(m&&m.updatedAt)t.updatedAt=Date.parse(m.updatedAt)||t.updatedAt;
-      n++;
+    if(/^guias-fechadas\//.test(e.name)){
+      try{
+        var vb=new Uint8Array(e.body),vi=detectEncoding(vb),vt=decodeBuf(vb,vi);
+        if(vb.length>=1073741824||vt.indexOf("\0")>=0){s++;return;}
+        var vnm=(m&&m.title)||e.name.replace(/^.*[\/\\]/,"").replace(/\.(txt|md)$/i,"")||"Sem título";
+        var mts=m&&Date.parse(m.updatedAt);
+        var ex=null;for(var q=0;q<closedVault.length;q++){if((closedVault[q].path||closedVault[q].name)===vnm){ex=closedVault[q];break;}}
+        if(ex&&!claimedV[vnm]){
+          claimedV[vnm]=1;
+          if(!(mts&&ex.updatedAt&&ex.updatedAt>mts)){vaultUpsert({name:vnm,path:null,content:vt,encoding:vi.enc,eol:detectEol(vt),createdAt:(m&&Date.parse(m.createdAt))||ex.createdAt||Date.now(),updatedAt:mts||Date.now()});}
+          n++;return;
+        }
+        vnm=uniq(vnm,takenVault,claimedV);
+        if(vaultUpsert({name:vnm,path:null,content:vt,encoding:vi.enc,eol:detectEol(vt),createdAt:(m&&Date.parse(m.createdAt))||Date.now(),updatedAt:mts||Date.now()}))n++;else s++;
+      }catch(x){s++;}
+      return;
     }
+    var base=e.name.replace(/^.*[\/\\]/,"").replace(/\.(txt|md)$/i,"")||"Sem título";
+    var target=claimed[base]?uniq(base,takenTab,claimed):base;
+    claimed[target]=1;
+    var t=openFileObject({name:target},e.body.buffer);
+    if(t&&typeof t.n==="number"){n+=t.n;s+=(t.s||0);return;}
+    if(!t){s++;return;}
+    if(m&&!t.modified){
+      if(m.title)t.name=m.title;
+      if(m.createdAt){var pc=Date.parse(m.createdAt);if(pc)t.createdAt=pc;}
+      if(m.updatedAt){var pu=Date.parse(m.updatedAt);if(pu)t.updatedAt=pu;}
+    }
+    n++;
   });
-  renderTabs();updateStatus(n+(n===1?" nota importada":" notas importadas"));scheduleSessionSave();
+  renderTabs();updateStatus(n+(n===1?" nota importada":" notas importadas")+(s?" • "+s+(s===1?" ignorada":" ignoradas"):""));scheduleSessionSave();
+  return {n:n,s:s};
 }
 function openAllTabs(){
   var c=$("ctx");c.innerHTML="";
