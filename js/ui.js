@@ -41,7 +41,7 @@ function openSaveAs(){
 }
 function openSettings(){
   dlg("<h2>Configurações</h2>"
-    +"<div class='field'><label>Tema</label><select id='oTheme'><option value='dark'>Escuro (padrão)</option><option value='light'>Claro</option><option value='white'>Branco</option><option value='sepia'>Sépia</option><option value='midnight'>Meia-noite</option></select></div>"
+    +"<div class='field'><label>Tema</label><select id='oTheme'><option value='dark'>Escuro (padrão)</option><option value='light'>Claro</option><option value='white'>Branco</option><option value='sepia'>Sépia</option><option value='midnight'>Meia-noite</option><option value='ubuntu'>Ubuntu</option><option value='firefox'>Firefox</option><option value='blackred'>Preto e vermelho</option></select></div>"
     +"<div class='check'><input type='checkbox' id='oWrap' "+(settings.wrap?"checked":"")+"><label for='oWrap'>Quebra automática de linha</label></div>"
     +"<div class='check'><input type='checkbox' id='oStatus' "+(settings.status?"checked":"")+"><label for='oStatus'>Barra de status</label></div>"
     +"<div class='check'><input type='checkbox' id='oStamp' "+(settings.stampOnSave?"checked":"")+"><label for='oStamp'>Inserir data/hora no fim ao salvar</label></div>"
@@ -117,7 +117,7 @@ function buildMenus(){
 }
 function openThemeChooser(){
   var h="<h2>Tema</h2><div class='field'><label>Escolha o tema</label><select id='tPick'>";
-  THEME_ORDER.forEach(function(v){h+="<option value='"+v+"'"+(settings.theme===v?" selected":"")+">"+({dark:"Escuro",light:"Claro",white:"Branco",sepia:"Sépia",midnight:"Meia-noite"}[v])+"</option>";});
+  THEME_ORDER.forEach(function(v){h+="<option value='"+v+"'"+(settings.theme===v?" selected":"")+">"+((typeof THEME_NAMES!=="undefined"?THEME_NAMES[v]:null)||v)+"</option>";});
   h+="</select></div><div class='row'><button class='btn primary' id='tOk'>Aplicar</button><button class='btn' onclick='closeDlg()'>Fechar</button></div>";
   dlg(h);
   $("tOk").onclick=function(){settings.theme=$("tPick").value;saveSettings();applyTheme();buildMenus();updateStatus();closeDlg();};

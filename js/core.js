@@ -16,8 +16,9 @@ function loadSettings(){
   if(THEME_ORDER.indexOf(settings.theme)<0)settings.theme="dark";
 }
 function saveSettings(){try{localStorage.setItem(SET_KEY,JSON.stringify(settings));}catch(e){}}
-var THEME_ORDER=["dark","light","white","sepia","midnight"];
-function themeName(){return {dark:"Escuro",light:"Claro",white:"Branco",sepia:"Sépia",midnight:"Meia-noite"}[settings.theme]||"Escuro";}
+var THEME_ORDER=["dark","light","white","sepia","midnight","ubuntu","firefox","blackred"];
+var THEME_NAMES={dark:"Escuro",light:"Claro",white:"Branco",sepia:"Sépia",midnight:"Meia-noite",ubuntu:"Ubuntu",firefox:"Firefox",blackred:"Preto e vermelho"};
+function themeName(){return THEME_NAMES[settings.theme]||"Escuro";}
 function nextTheme(){settings.theme=THEME_ORDER[(THEME_ORDER.indexOf(settings.theme)+1)%THEME_ORDER.length];saveSettings();applyTheme();}
 function fmtDT(ts){try{return new Date(ts).toLocaleString([],{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});}catch(e){return "";}}
 function fmtFileTS(ts){var d=new Date(ts);function p(n){return (n<10?"0":"")+n;}return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"-"+p(d.getHours())+p(d.getMinutes());}
