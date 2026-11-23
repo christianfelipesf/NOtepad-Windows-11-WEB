@@ -105,7 +105,8 @@ body.dragging .editor-wrap{outline:2px dashed var(--accent);outline-offset:-10px
 .crow:hover{background:var(--hover)}
 .crow.sel{background:var(--hover);box-shadow:inset 2px 0 0 var(--accent)}
 .crow .cn{display:block;font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.crow .cd{display:block;font-size:11px;color:var(--text2);margin-top:2px}
+.crow .cd{display:block;font-size:11px;color:var(--text2);margin-top:2px;line-height:1.45}
+.newtab svg{display:block}
 .cdetail{flex:1;min-width:0;overflow:auto;max-height:44vh;min-height:160px}
 .cmeta{font-size:11px;color:var(--text2);margin:6px 0}
 .cprev{border:1px solid var(--sep);border-radius:6px;padding:10px 12px;font-size:12px;line-height:1.6;max-height:180px;overflow:auto;background:var(--field);color:var(--text)}

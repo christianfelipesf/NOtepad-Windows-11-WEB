@@ -177,14 +177,14 @@ function openClosedPanel(){
   var sel=vaultGet(closedSelId)||closedVault[closedVault.length-1]||null;
   if(sel)closedSelId=sel.id;
   var rows=closedVault.slice().reverse().map(function(v){
-    return "<div class='crow"+(v.id===closedSelId?" sel":"")+"' data-id='"+v.id+"'><span class='cn'>"+esc(v.name)+"</span><span class='cd'>"+esc(fmtDT(v.closedAt||v.updatedAt||Date.now()))+" • "+String((v.content||"").length)+" car.</span></div>";
+    return "<div class='crow"+(v.id===closedSelId?" sel":"")+"' data-id='"+v.id+"'><span class='cn'>"+esc(v.name)+"</span><span class='cd'>Criada "+esc(fmtDT(v.createdAt||v.closedAt||v.updatedAt||Date.now()))+"<br>Guardada "+esc(fmtDT(v.closedAt||v.updatedAt||v.createdAt||Date.now()))+" • "+String((v.content||"").length)+" car.</span></div>";
   }).join("");
   var detail="<p class='cempty'>Nenhuma guia guardada. No menu Arquivo, use “Guardar guia no navegador” para guardar a guia atual sem baixar arquivo.</p>";
   if(sel){
     var body=sel.content||"";
     var prevHtml=isMarkdownFile(sel.path||sel.name)?mdRender(body):"<pre class='cpre'>"+esc(body.slice(0,2000))+(body.length>2000?"…":"")+"</pre>";
     detail="<div class='field' style='margin-top:0'><label>Título</label><input type='text' id='cName' value='"+esc(sel.name)+"'></div>"
-      +"<div class='cmeta'>Guardada em "+esc(fmtDT(sel.closedAt||sel.updatedAt||Date.now()))+" • "+String(body.length)+" caracteres • "+esc(sel.encoding||"UTF-8")+" • "+esc(sel.eol||"CRLF")+"</div>"
+      +"<div class='cmeta'>Criada em "+esc(fmtDT(sel.createdAt||sel.closedAt||sel.updatedAt||Date.now()))+" • Guardada em "+esc(fmtDT(sel.closedAt||sel.updatedAt||sel.createdAt||Date.now()))+" • "+String(body.length)+" caracteres • "+esc(sel.encoding||"UTF-8")+" • "+esc(sel.eol||"CRLF")+"</div>"
       +"<div class='cprev'>"+prevHtml+"</div>"
       +"<div class='field'><label>Editar conteúdo</label><textarea id='cEdit' rows='8'>"+esc(body).replace(/<\/textarea/gi,"&lt;/textarea")+"</textarea></div>"
       +"<div class='row' style='justify-content:flex-start'><button class='btn primary' id='cSaveEdit'>Salvar edição</button><button class='btn' id='cOpen'>Abrir como guia</button><button class='btn' id='cDel'>Excluir</button></div>";
@@ -326,6 +326,7 @@ function bindGlobalEvents(){
   $("btnSettings").onclick=function(e){e.stopPropagation();var m=$("menu-settings"),was=m.classList.contains("show");closeMenus();if(!was)m.classList.add("show");};
   document.addEventListener("click",function(e){if(!e.target.closest(".menu")&&!e.target.closest(".mi")&&e.target.id!=="btnSettings")closeMenus();if(!e.target.closest(".small-find")&&!e.target.closest(".ctx"))$("ctx").classList.remove("show");});
   $("btnNewTab").onclick=function(){newTab();};
+  var bv=$("btnVaultAll");if(bv)bv.onclick=function(){vaultSaveAllAndClear();};
   tabsEl.addEventListener("contextmenu",function(e){e.preventDefault();var el=e.target.closest?e.target.closest(".tab"):null;openTabMenu(el?+el.dataset.idx:active,e.clientX,e.clientY);});
   $("btnAllTabs").onclick=function(e){e.stopPropagation();openAllTabs();};
   $("zipInput").addEventListener("change",function(e){Array.from(e.target.files).forEach(function(f){f.arrayBuffer().then(function(b){importZipData(b);});});e.target.value="";});
