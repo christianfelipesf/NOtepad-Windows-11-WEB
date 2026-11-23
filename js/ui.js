@@ -91,6 +91,7 @@ function buildMenus(){
   item(E,"Recortar","Ctrl+X",function(){document.execCommand("cut");});
   item(E,"Copiar","Ctrl+C",function(){document.execCommand("copy");});
   item(E,"Colar","Ctrl+V",function(){try{document.execCommand("paste");}catch(e){}});
+  item(E,"Colar foto (Markdown)...",null,function(){pasteImageFromClipboard();});
   item(E,"Excluir","Del",function(){document.execCommand("delete");});
   sep(E);
   item(E,"Localizar...","Ctrl+F",function(){hideBoxes();$("findBox").classList.add("show");$("findText").focus();});
@@ -326,10 +327,11 @@ function bindGlobalEvents(){
   $("btnSettings").onclick=function(e){e.stopPropagation();var m=$("menu-settings"),was=m.classList.contains("show");closeMenus();if(!was)m.classList.add("show");};
   document.addEventListener("click",function(e){if(!e.target.closest(".menu")&&!e.target.closest(".mi")&&e.target.id!=="btnSettings")closeMenus();if(!e.target.closest(".small-find")&&!e.target.closest(".ctx"))$("ctx").classList.remove("show");});
   $("btnNewTab").onclick=function(){newTab();};
-  var bv=$("btnVaultAll");if(bv)bv.onclick=function(){vaultSaveAllAndClear();};
+  var bv=$("btnVaultAll");if(bv)bv.onclick=function(){confirmVaultClear();};
   tabsEl.addEventListener("contextmenu",function(e){e.preventDefault();var el=e.target.closest?e.target.closest(".tab"):null;openTabMenu(el?+el.dataset.idx:active,e.clientX,e.clientY);});
   $("btnAllTabs").onclick=function(e){e.stopPropagation();openAllTabs();};
   $("zipInput").addEventListener("change",function(e){Array.from(e.target.files).forEach(function(f){f.arrayBuffer().then(function(b){importZipData(b);});});e.target.value="";});
+  var imgInp=$("imgInput");if(imgInp)imgInp.addEventListener("change",function(e){Array.from(e.target.files).forEach(function(f){insertImageFile(f);});e.target.value="";});
   $("fileInput").addEventListener("change",function(e){
     Array.from(e.target.files).forEach(function(f){f.arrayBuffer().then(function(b){openFileObject({name:f.name},b);});});
     e.target.value="";
@@ -400,6 +402,6 @@ function bindGlobalEvents(){
   window.addEventListener("drop",function(e){
     e.preventDefault();document.body.classList.remove("dragging");
     var fs=e.dataTransfer&&e.dataTransfer.files;
-    if(fs&&fs.length)Array.from(fs).forEach(function(f){f.arrayBuffer().then(function(b){openFileObject({name:f.name},b);});});
+    if(fs&&fs.length)Array.from(fs).forEach(function(f){if(/^image\//i.test(f.type||"")){insertImageFile(f);}else f.arrayBuffer().then(function(b){openFileObject({name:f.name},b);});});
   });
 }

@@ -124,12 +124,35 @@ var CLOSED_KEY="renotepad2.closed";
 var closedStack=[];
 var closedVault=[];
 function loadClosedVault(){try{var d=JSON.parse(localStorage.getItem(CLOSED_KEY)||"null");if(d&&Array.isArray(d.items))closedVault=d.items.filter(function(e){return e&&typeof e.content==="string";});}catch(e){closedVault=[];}return closedVault;}
-function saveClosedVault(){try{closedVault=closedVault.slice(-50);localStorage.setItem(CLOSED_KEY,JSON.stringify({v:1,items:closedVault}));}catch(e){}}
+function saveClosedVault(){try{closedVault=closedVault.slice(-50);localStorage.setItem(CLOSED_KEY,JSON.stringify({v:1,items:closedVault}));return true;}catch(e){return false;}}
 function vaultEntryOf(t){return {id:"c"+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36),name:t.name||"Sem título",path:t.path||null,content:t.content||"",encoding:t.encoding||"UTF-8",eol:t.eol||"CRLF",createdAt:t.createdAt||Date.now(),updatedAt:t.updatedAt||t.createdAt||Date.now(),closedAt:Date.now()};}
 function vaultUpsert(t){function touch(e){e.content=t.content;e.updatedAt=Date.now();e.closedAt=Date.now();e.name=t.name;e.path=t.path;saveClosedVault();t.vaultId=e.id;return e;}if(t.vaultId){for(var j=0;j<closedVault.length;j++){if(closedVault[j].id===t.vaultId)return touch(closedVault[j]);}t.vaultId=null;}var key=t.path||t.name;for(var k=0;k<closedVault.length;k++){if((closedVault[k].path||closedVault[k].name)===key)return touch(closedVault[k]);}var e=vaultEntryOf(t);closedVault.push(e);saveClosedVault();t.vaultId=e.id;return e;}
 function vaultSaveTab(i){var t=tabs[i];if(!t)return null;if(tabs.indexOf(t)===active)t.content=editor.value;t.updatedAt=Date.now();var e=vaultUpsert(t);renderTabs();updateStatus("Guardada no navegador: "+t.name);scheduleSessionSave();return e;}
 function vaultSaveAll(){if(!tabs.length)return 0;if(tabs.indexOf(cur())===active)cur().content=editor.value;var n=0;tabs.forEach(function(t){t.updatedAt=t.updatedAt||Date.now();vaultUpsert(t);n++;});updateStatus(n+(n===1?" guia guardada no navegador":" guias guardadas no navegador"));return n;}
-function vaultSaveAllAndClear(){var t=cur();if(!tabs.length||!t)return 0;t.content=editor.value;var n=0;tabs.forEach(function(x){x.updatedAt=x.updatedAt||Date.now();vaultUpsert(x);n++;});tabs.length=0;untitledN=0;newTab();updateStatus(n+(n===1?" guia guardada no navegador e guia limpa":" guias guardadas no navegador e guias limpas")+" — use Guias guardadas para reabrir");return n;}
+function vaultKeepCount(){var n=0;tabs.forEach(function(x){var body=(tabs.indexOf(x)===active)?editor.value:(x.content||"");if(x.path||String(body).length>0)n++;});return n;}
+function confirmVaultClear(){
+  var t=cur();if(!tabs.length||!t)return;
+  var n=vaultKeepCount();
+  var msg=n?(n===1?"Guardar <b>1 guia</b> no navegador, fechar todas e começar do zero?":"Guardar <b>"+n+" guias</b> no navegador, fechar todas e começar do zero?")
+    :"Nenhuma guia tem conteúdo para guardar. Fechar tudo e começar do zero?";
+  dlg("<h2>Guardar e limpar guias</h2><p>"+msg+"</p><p>As guias guardadas ficam neste navegador e podem ser reabertas em “Guias guardadas no navegador…”.</p>"
+    +"<div class='row'><button class='btn primary' id='vYes'>"+(n?"Guardar e limpar":"Limpar")+"</button><button class='btn' onclick='closeDlg()'>Cancelar</button></div>");
+  $("vYes").onclick=function(){closeDlg();vaultSaveAllAndClear();};
+}
+function vaultSaveAllAndClear(){
+  var t=cur();if(!tabs.length||!t)return 0;
+  t.content=editor.value;
+  var n=0;
+  tabs.forEach(function(x){
+    if(!(x.path||String(x.content||"").length>0))return;
+    try{x.updatedAt=x.updatedAt||Date.now();vaultUpsert(x);n++;}catch(e){}
+  });
+  var ok=false;try{ok=saveClosedVault();}catch(e){ok=false;}
+  tabs.length=0;untitledN=0;newTab();
+  if(!n)updateStatus("Nada com conteúdo para guardar; guias limpas");
+  else updateStatus(n+(n===1?" guia guardada no navegador e guias limpas":" guias guardadas no navegador e guias limpas")+" — use Guias guardadas para reabrir"+(ok?"":" (aviso: o navegador recusou o salvamento local)"));
+  return n;
+}
 function vaultGet(id){for(var k=0;k<closedVault.length;k++){if(closedVault[k].id===id)return closedVault[k];}return null;}
 function vaultRename(id,name){var e=vaultGet(id);if(!e||!String(name).trim())return false;e.name=String(name).trim();e.updatedAt=Date.now();saveClosedVault();return true;}
 function vaultEditContent(id,content){var e=vaultGet(id);if(!e)return false;e.content=String(content);e.updatedAt=Date.now();saveClosedVault();return true;}

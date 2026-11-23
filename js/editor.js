@@ -26,6 +26,64 @@ function toggleMd(){
   else updateStatus();
 }
 function insertTimeDate(){document.execCommand("insertText",false,stampNow());markModified();}
+function imageAlt(file){var n=String((file&&file.name)||"").replace(/\.[^.]+$/,"").replace(/[\[\]()]/g," ").trim();return n||"foto";}
+function insertMarkdownImage(dataUrl,alt){
+  var md="!["+alt+"]("+dataUrl+")";
+  var s=editor.selectionStart||0,e=editor.selectionEnd||s,v=editor.value;
+  var text=(s>0&&v.charAt(s-1)!=="\n"?"\n":"")+md+"\n";
+  editor.focus();
+  var ok=false;try{ok=document.execCommand("insertText",false,text);}catch(err){}
+  if(!ok){editor.value=v.slice(0,s)+text+v.slice(e);editor.setSelectionRange(s+text.length,s+text.length);}
+  markModified();if(settings.mdPreview)renderPreview();
+  updateStatus("Foto inserida (Markdown): "+alt+(cur()&&!isMarkdownFile(cur().name)?" — renomeie para .md para ver a prévia":""));
+}
+function insertImageFile(file){
+  if(!file||!/^image\//i.test(file.type||""))return false;
+  if(file.size>8*1024*1024){updateStatus("Foto muito grande (máx. 8 MB)");return true;}
+  var alt=imageAlt(file);
+  var rd=new FileReader();
+  rd.onload=function(){
+    var url=String(rd.result||"");if(!url)return;
+    var img=new Image();
+    img.onload=function(){
+      var w=img.naturalWidth||0,h=img.naturalHeight||0,scale=(w&&h)?Math.min(1,1600/Math.max(w,h)):1;
+      if(scale<1||file.size>1024*1024){
+        try{
+          var c=document.createElement("canvas");c.width=Math.max(1,Math.round(w*scale));c.height=Math.max(1,Math.round(h*scale));
+          c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+          var out=c.toDataURL(file.type==="image/png"?"image/png":"image/jpeg",0.88);
+          if(out&&out.length<url.length)url=out;
+        }catch(err){}
+      }
+      insertMarkdownImage(url,alt);
+      if(url.length>1500000)updateStatus("Foto inserida, mas a nota ficou pesada ("+Math.round(url.length/1024)+" KB) — pode não caber no salvamento automático");
+    };
+    img.onerror=function(){insertMarkdownImage(url,alt);};
+    img.src=url;
+  };
+  rd.onerror=function(){updateStatus("Não foi possível ler a foto");};
+  rd.readAsDataURL(file);
+  return true;
+}
+function pickImage(){var inp=$("imgInput");if(inp)inp.click();}
+function pasteImageFromClipboard(){
+  if(navigator.clipboard&&navigator.clipboard.read){
+    navigator.clipboard.read().then(function(items){
+      var found=null;
+      items.forEach(function(it){(it.types||[]).forEach(function(tp){if(/^image\//i.test(tp))found={it:it,tp:tp};});});
+      if(!found){pickImage();return;}
+      found.it.getType(found.tp).then(function(b){insertImageFile(b);}).catch(function(){pickImage();});
+    }).catch(function(){pickImage();});
+  }else pickImage();
+}
+editor.addEventListener("paste",function(e){
+  var cd=e.clipboardData;if(!cd)return;
+  var files=[];
+  if(cd.files&&cd.files.length)files=Array.from(cd.files);
+  else if(cd.items)Array.from(cd.items).forEach(function(it){if(it.kind==="file"){var f=it.getAsFile();if(f)files.push(f);}});
+  var img=null;files.forEach(function(f){if(!img&&/^image\//i.test(f.type||""))img=f;});
+  if(img){e.preventDefault();insertImageFile(img);}
+});
 function mdWrap(before,after){
   var s=editor.selectionStart,e=editor.selectionEnd,v=editor.value,sel=v.slice(s,e);
   editor.value=v.slice(0,s)+before+sel+after+v.slice(e);

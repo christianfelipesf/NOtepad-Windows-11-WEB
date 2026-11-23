@@ -33,6 +33,8 @@ body.dragging .editor-wrap{outline:2px dashed var(--accent);outline-offset:-10px
 #preview pre code{background:none;padding:0}
 #preview blockquote{border-left:3px solid var(--sep);margin:8px 0;padding:2px 12px;color:var(--text2)}
 #preview a{color:var(--accent)}#preview hr{border:none;border-top:1px solid var(--sep);margin:12px 0}
+#preview img{max-width:100%;height:auto;border-radius:6px;display:block;margin:8px 0}
+.cprev img{max-width:100%;height:auto;border-radius:6px;display:block;margin:8px 0}
 #preview table{border-collapse:collapse;margin:10px 0}
 #preview th,#preview td{border:1px solid var(--sep);padding:5px 10px}
 .statusbar{height:32px;background:var(--surface);border-top:1px solid var(--line);display:flex;align-items:center;font-size:12px;color:var(--text2);flex-shrink:0;overflow:hidden}
