@@ -54,7 +54,7 @@
 <div class="small-find" id="findBox"><div class="field" style="margin:0"><label>Localizar</label><input type="text" id="findText"></div><div class="frow"><button class="btn" id="findUp">&#8592;</button><button class="btn" id="findDown">&#8594;</button><button class="btn primary" id="findClose">Fechar</button></div><div class="check"><input type="checkbox" id="findCase"><label for="findCase">Diferenciar maiúsc./minúsc.</label></div><div class="check"><input type="checkbox" id="findWrap" checked><label for="findWrap">Continuar do início/fim</label></div></div>
 <div class="small-find" id="replaceBox"><div class="field" style="margin:0"><label>Localizar</label><input type="text" id="repFind"></div><div class="field"><label>Substituir por</label><input type="text" id="repBy"></div><div class="frow"><button class="btn" id="repOne">Substituir</button><button class="btn" id="repAll">Tudo</button><button class="btn" id="repDown">&#8594;</button><button class="btn primary" id="repClose">Fechar</button></div><div class="check"><input type="checkbox" id="repCase"><label for="repCase">Diferenciar maiúsc./minúsc.</label></div></div>
 </div>
-<div class="statusbar" id="statusbar"><span class="st" id="stPos">Ln 1, Col 1</span><span class="st" id="stChars">0 caracteres</span><span class="st" id="stLines" title="Total de linhas (clique para ir para a linha)">1 linha</span><span class="st clickable" id="stDates" title="Criação e última edição">—</span><span class="st" id="stMsg"></span><span class="st clickable" id="stTheme" title="Clique para trocar de tema">Tema: Escuro</span><span class="st clickable" id="stMd" title="Prévia Markdown">MD</span><span class="st clickable" id="stZoom">100%</span><span class="st clickable" id="stEol">Windows (CRLF)</span><span class="st clickable" id="stEnc">UTF-8</span></div>
+<div class="statusbar" id="statusbar"><span class="st" id="stPos">Ln 1, Col 1</span><span class="st" id="stChars">0 caracteres</span><span class="st" id="stLines" title="Total de linhas (clique para ir para a linha)">1 linha</span><span class="st clickable" id="stDates" title="Criação e última edição">—</span><span class="st" id="stMsg"></span><span class="st clickable" id="stTheme" title="Clique para trocar de tema">Tema: Escuro</span><span class="st clickable" id="stMd" title="Prévia Markdown">MD</span><span class="st clickable" id="stRun" title="Executar HTML/JS em nova aba (F9)">▶ Executar</span><span class="st clickable" id="stZoom">100%</span><span class="st clickable" id="stEol">Windows (CRLF)</span><span class="st clickable" id="stEnc">UTF-8</span></div>
 <div class="overlay" id="ovl"><div class="dlg" id="dlgBox"></div></div>
 <div class="ctx" id="ctx"></div>
 <input type="file" id="fileInput" style="display:none" multiple>
@@ -66,6 +66,7 @@
 <script src="js/tabs.js"></script>
 <script src="js/editor.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/run.js"></script>
 <script src="js/sync.js"></script>
 <script src="js/main.js"></script>
 <script src="js/pwa.js"></script>

@@ -107,6 +107,7 @@ function buildMenus(){
   item(V,"Restaurar zoom","Ctrl+0",function(){setZoom(100);});
   sep(V);
   item(V,"Prévia Markdown","Ctrl+Shift+M",toggleMd);
+  item(V,"Executar HTML/JS em nova aba","F9",function(){openRunInNewTab();});
   item(V,"Barra de formatação",null,function(){settings.mdBar=!settings.mdBar;saveSettings();applyEditor();});
   item(V,"Barra de status",null,function(){settings.status=!settings.status;saveSettings();applyEditor();buildMenus();});
   item(V,"Quebra automática de linha",null,function(){settings.wrap=!settings.wrap;saveSettings();applyEditor();buildMenus();});
@@ -351,6 +352,7 @@ function bindGlobalEvents(){
     else if(c&&e.key.toLowerCase()==="g"){e.preventDefault();openGoto();}
     else if(e.key==="F3"){e.preventDefault();var q=$("findText").value;if(q)findInEditor(q,!e.shiftKey,settings.matchCase,settings.wrapAround);}
     else if(e.key==="F5"&&!c){e.preventDefault();insertTimeDate();}
+    else if(e.key==="F9"&&!c){e.preventDefault();openRunInNewTab();}
     else if(c&&(e.key==="+"||e.key==="=")){e.preventDefault();setZoom(zoom+10);}
     else if(c&&e.key==="-"){e.preventDefault();setZoom(zoom-10);}
     else if(c&&e.key==="0"){e.preventDefault();setZoom(100);}
@@ -363,6 +365,7 @@ function bindGlobalEvents(){
   $("repDown").onclick=function(){var q=$("repFind").value;if(q)findNextRep(q,$("repCase").checked);};
   $("repOne").onclick=doReplaceOne;$("repAll").onclick=doReplaceAll;$("repClose").onclick=hideBoxes;
   $("stMd").onclick=function(){toggleMd();};
+  var stR=$("stRun");if(stR)stR.onclick=function(){openRunInNewTab();};
   $("stZoom").onclick=function(e){e.stopPropagation();
     var c=$("ctx");c.innerHTML="";
     [["Ampliar",function(){setZoom(zoom+10);}],["Reduzir",function(){setZoom(zoom-10);}],["Restaurar (100%)",function(){setZoom(100);}]].forEach(function(p){
