@@ -17,8 +17,8 @@ function updateStatus(msg,link){
   $("stZoom").textContent=zoom+"%";
   $("stEol").textContent=t.eol==="CRLF"?"Windows (CRLF)":t.eol==="LF"?"Unix (LF)":"Mac (CR)";
   $("stEnc").textContent=t.encoding;
-  var ex=$("stExt");
-  if(ex){var full2=(t.path||t.name||""),mm=full2.match(/\.([a-z0-9]{1,10})$/i);ex.textContent=mm?("."+mm[1].toLowerCase()):"sem ext.";}
+  var ex=$("stExt");if(ex&&typeof tabExt==="function")ex.textContent=tabExt(t);
+  
   var m=$("stMsg");if(typeof msg!=="string")msg="";if(typeof link!=="function")link=null;m.textContent=msg||"";m.classList.toggle("link",!!link);m.onclick=link||null;
 }
 function openGoto(){
@@ -145,15 +145,18 @@ function openExtDialog(){
   if(tabs.indexOf(t)===active)t.content=editor.value;
   var full=t.path||t.name||"Sem título";
   var base=full.replace(/\.[a-z0-9]{1,10}$/i,""),curExt=tabExt(t);
-  var list=[".txt",".md",".html",".js",".py",".css",".json",".csv",".svg"];
-  var opts=list.map(function(x){return "<option value='"+x+"'"+(x===curExt?" selected":"")+">"+x+"</option>";}).join("");
+
+
   dlg("<h2>Extensão da nota</h2><p>Nota atual: <b>"+esc(full)+"</b></p>"
     +"<div class='field'><label>Nome (sem extensão)</label><input type='text' id='eBase' value='"+esc(base)+"'></div>"
-    +"<div class='field'><label>Extensão</label><select id='eExt'>"+opts+"</select></div>"
-    +"<div class='row'><button class='btn primary' id='eOk'>Aplicar</button><button class='btn' onclick='closeDlg()'>Cancelar</button></div>");
+    +"<div class='field'><label>Extensão (digite, ex.: .md)</label><input type='text' id='eExt' value='"+curExt+"' placeholder='.txt'></div>"
+    +"<div class='row'><button class='btn primary' id='eOk'>Salvar</button><button class='btn' onclick='closeDlg()'>Cancelar</button></div>");
   $("eOk").onclick=function(){
     var b=$("eBase").value.trim().replace(/\.[a-z0-9]{1,10}$/i,"")||"Sem título";
-    var nu=b+$("eExt").value;
+    var typed=$("eExt").value.trim().toLowerCase();
+    if(typed.charAt(0)!==".")typed="."+typed;
+    if(!/^\.[a-z0-9]{1,10}$/.test(typed)){updateStatus("Extensão inválida: use letras e números, ex.: .md");return;}
+    var nu=b+typed;
     if(nu!==t.name)t.handle=null;
     t.name=nu;t.fallback=nu;t.path=nu;t.updatedAt=Date.now();
     renderTabs();applyEditor();updateStatus();scheduleSessionSave();closeDlg();
