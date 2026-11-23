@@ -172,6 +172,33 @@ describe("painel executar", () => {
     assert.equal(t.run("detectRunLang(cur().name,'x=1')"), "python");
   });
 
+  it("sem extensão mostra .txt como padrão", () => {
+    const t = boot();
+    t.run("newTab('rascunho')");
+    assert.equal(t.box.document.getElementById("stExt").textContent, ".txt");
+  });
+
+  it("extensão digitada sem ponto ganha o ponto", () => {
+    const t = boot();
+    t.run("newTab('rascunho.txt')");
+    t.box.document.getElementById("stExt").onclick();
+    t.box.document.getElementById("eBase").value = "rascunho";
+    t.box.document.getElementById("eExt").value = "py";
+    t.box.document.getElementById("eOk").onclick();
+    assert.equal(t.run("cur().name"), "rascunho.py");
+  });
+
+  it("extensão inválida não salva e avisa", () => {
+    const t = boot();
+    t.run("newTab('rascunho.txt')");
+    t.box.document.getElementById("stExt").onclick();
+    t.box.document.getElementById("eBase").value = "rascunho";
+    t.box.document.getElementById("eExt").value = "???";
+    t.box.document.getElementById("eOk").onclick();
+    assert.equal(t.run("cur().name"), "rascunho.txt");
+    assert.match(t.box.document.getElementById("stMsg").textContent, /Extensão inválida/);
+  });
+
   it("esc protege aspas simples nos diálogos", () => {
     const t = boot();
     assert.equal(t.run("esc(\"a'b\\\"<>&\")"), "a&#39;b&quot;&lt;&gt;&amp;");
