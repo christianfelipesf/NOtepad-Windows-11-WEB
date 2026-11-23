@@ -1,7 +1,7 @@
 "use strict";
 /* Núcleo: utilidades, configurações e persistência de sessão. */
 function $(id){return document.getElementById(id);}
-function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
 function debounce(fn,ms){var t=null;return function(){clearTimeout(t);var a=arguments,s=this;t=setTimeout(function(){fn.apply(s,a);},ms);};}
 function stampNow(){var n=new Date();return n.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+" "+n.toLocaleDateString();}
 var SET_KEY="renotepad2.settings", SES_KEY="renotepad2.session";

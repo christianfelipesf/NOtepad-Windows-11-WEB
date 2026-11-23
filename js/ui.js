@@ -348,7 +348,7 @@ function bindGlobalEvents(){
     b.onclick=function(e){e.stopPropagation();var m=$("menu-"+b.dataset.m),was=m.classList.contains("show");closeMenus();if(!was){var r=b.getBoundingClientRect();m.style.top="32px";m.classList.add("show");var w=m.offsetWidth||240;m.style.left=Math.max(4,Math.min(r.left,window.innerWidth-w-4))+"px";b.classList.add("open");}};
   });
   $("btnSettings").onclick=function(e){e.stopPropagation();var m=$("menu-settings"),was=m.classList.contains("show");closeMenus();if(!was)m.classList.add("show");};
-  var bRun=$("btnRun");if(bRun)bRun.onclick=function(e){if(e)e.stopPropagation();if(typeof openRunPanel==="function")openRunPanel();else openRunInNewTab();};
+
   document.addEventListener("click",function(e){if(!e.target.closest(".menu")&&!e.target.closest(".mi")&&e.target.id!=="btnSettings")closeMenus();if(!e.target.closest(".small-find")&&!e.target.closest(".ctx"))$("ctx").classList.remove("show");});
   $("btnNewTab").onclick=function(){newTab();};
   var bv=$("btnVaultAll");if(bv)bv.onclick=function(){confirmVaultClear();};

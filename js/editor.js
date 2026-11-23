@@ -15,7 +15,7 @@ function applyEditor(){
   var md=$("stMd");
   md.classList.toggle("off",!(cur()&&isMarkdownFile(cur().name)));
   var rn=$("stRun");if(rn&&typeof isRunnableFile==="function")rn.classList.toggle("off",!(cur()&&isRunnableFile(cur().path||cur().name)));
-  var br=$("btnRun");if(br&&typeof isRunnableFile==="function")br.classList.toggle("off",!(cur()&&isRunnableFile(cur().path||cur().name)));
+
   md.style.fontWeight=settings.mdPreview?"bold":"normal";
 }
 function setZoomFont(){editor.style.fontSize=(settings.size*zoom/100)+"px";}

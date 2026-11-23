@@ -161,12 +161,38 @@ describe("painel executar", () => {
   it("troca a extensão pela barra de status", () => {
     const t = boot();
     t.run("newTab('rascunho.txt')");
-    t.run("openExtDialog()");
+    const wired = t.box.document.getElementById("stExt").onclick;
+    assert.equal(typeof wired, "function");
+    wired();
     t.box.document.getElementById("eBase").value = "rascunho";
     t.box.document.getElementById("eExt").value = ".py";
     t.box.document.getElementById("eOk").onclick();
     assert.equal(t.run("cur().name"), "rascunho.py");
     assert.equal(t.box.document.getElementById("stExt").textContent, ".py");
     assert.equal(t.run("detectRunLang(cur().name,'x=1')"), "python");
+  });
+
+  it("esc protege aspas simples nos diálogos", () => {
+    const t = boot();
+    assert.equal(t.run("esc(\"a'b\\\"<>&\")"), "a&#39;b&quot;&lt;&gt;&amp;");
+  });
+});
+
+describe("instalação e cache", () => {
+  const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  const sw = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
+
+  it("sem botão play no menubar", () => {
+    assert.doesNotMatch(html, /id="btnRun"/);
+    assert.doesNotMatch(html, /class="play"/);
+  });
+
+  it("service worker guarda todos os js/css da página", () => {
+    const refs = new Set();
+    for (const m of html.matchAll(/(?:src|href)="(js\/[^"]+|css\/[^"]+)"/g)) refs.add("./" + m[1]);
+    assert.ok(refs.size > 0);
+    for (const r of refs) assert.ok(sw.includes('"' + r + '"'), r + " fora do SHELL");
+    const ver = sw.match(/APP_VERSION\s*=\s*"([^"]+)"/)[1];
+    assert.ok(sw.includes('"' + "renotepad-" + ver + '"'), "CACHE acompanha APP_VERSION");
   });
 });
