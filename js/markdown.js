@@ -41,4 +41,4 @@ function mdRender(src){
   }
   return html.join("\n")||"<p><em>(vazio)</em></p>";
 }
-function isMarkdownFile(name){return /\.md|markdown$/i.test(name||"");}
+function isMarkdownFile(name){return /\.(md|markdown|mdown?)$/i.test(String(name||"").trim());}

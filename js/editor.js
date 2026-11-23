@@ -27,6 +27,34 @@ function toggleMd(){
 }
 function insertTimeDate(){document.execCommand("insertText",false,stampNow());markModified();}
 function imageAlt(file){var n=String((file&&file.name)||"").replace(/\.[^.]+$/,"").replace(/[\[\]()]/g," ").trim();return n||"foto";}
+function markdownNameFor(base){
+  var n=String(base||"").trim()||"Sem título";
+  if(isMarkdownFile(n))return n;
+  if(/\.txt$/i.test(n))return n.replace(/\.txt$/i,".md");
+  return n+".md";
+}
+function convertCurrentToMarkdown(){
+  var t=cur();if(!t||isMarkdownFile(t.name))return false;
+  if(!t.origName)t.origName=t.name;
+  if(t.path&&!t.origPath)t.origPath=t.path;
+  var nu=markdownNameFor(t.name);
+  t.name=nu;
+  if(!t.path)t.fallback=nu;else t.path=nu;
+  t.handle=null;
+  t.updatedAt=Date.now();
+  renderTabs();applyEditor();scheduleSessionSave();
+  return true;
+}
+function askMarkdownConvert(alt){
+  var t=cur();if(!t||isMarkdownFile(t.name)||t.mdAskDeclined)return false;
+  var shown=t.origName||t.name||"Sem título";
+  dlg("<h2>Foto em nota sem Markdown</h2><p>A foto foi inserida como Markdown ("+esc("!["+(alt||"foto")+"]...")+") mas esta nota (<b>"+esc(t.name||"Sem título")+"</b>) ainda não é .md, então a prévia e a barra Markdown continuam desligadas.</p>"
+    +"<p>Quer converter para Markdown agora? O nome original (<b>"+esc(shown)+"</b>) fica guardado e nada do texto é apagado.</p>"
+    +"<div class='row'><button class='btn primary' id='mdYes'>Converter para .md</button><button class='btn' id='mdNo'>Manter como está</button></div>");
+  $("mdYes").onclick=function(){closeDlg();if(convertCurrentToMarkdown())updateStatus("Nota convertida para .md (original: "+cur().origName+")");};
+  $("mdNo").onclick=function(){var c=cur();if(c)c.mdAskDeclined=true;closeDlg();updateStatus("Foto inserida (Markdown): "+(alt||"foto")+" — toque aqui para converter para .md",function(){var cc=cur();if(cc)cc.mdAskDeclined=false;askMarkdownConvert(alt);});};
+  return true;
+}
 function insertMarkdownImage(dataUrl,alt){
   var md="!["+alt+"]("+dataUrl+")";
   var s=editor.selectionStart||0,e=editor.selectionEnd||s,v=editor.value;
@@ -35,7 +63,13 @@ function insertMarkdownImage(dataUrl,alt){
   var ok=false;try{ok=document.execCommand("insertText",false,text);}catch(err){}
   if(!ok){editor.value=v.slice(0,s)+text+v.slice(e);editor.setSelectionRange(s+text.length,s+text.length);}
   markModified();if(settings.mdPreview)renderPreview();
-  updateStatus("Foto inserida (Markdown): "+alt+(cur()&&!isMarkdownFile(cur().name)?" — renomeie para .md para ver a prévia":""));
+  var t=cur();
+  if(t&&!isMarkdownFile(t.name)){
+    if(!t.mdAskDeclined&&typeof dlg==="function"){askMarkdownConvert(alt);return;}
+    updateStatus("Foto inserida (Markdown): "+alt+" — toque aqui para converter para .md",function(){var c=cur();if(c)c.mdAskDeclined=false;askMarkdownConvert(alt);});
+    return;
+  }
+  updateStatus("Foto inserida (Markdown): "+alt);
 }
 function insertImageFile(file){
   if(!file||!/^image\//i.test(file.type||""))return false;
