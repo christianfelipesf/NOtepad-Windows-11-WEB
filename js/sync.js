@@ -36,6 +36,7 @@ var Sync = (function () {
     try {
       tabs.forEach(function (t, i) {
         var body = (tabs.indexOf(t) === active && typeof editor !== "undefined") ? editor.value : (t.content || "");
+        if (typeof resolveAttachments === "function") { try { body = resolveAttachments(body, t); } catch (e) {} }
         items.push({ key: "t:" + (t.vaultId || t.path || t.name), name: t.name, content: body,
           encoding: t.encoding || "UTF-8", eol: t.eol || "CRLF", updatedAt: t.updatedAt || Date.now() });
       });

@@ -15,11 +15,12 @@ function applyEditor(){
   var md=$("stMd");
   md.classList.toggle("off",!(cur()&&isMarkdownFile(cur().name)));
   var rn=$("stRun");if(rn&&typeof isRunnableFile==="function")rn.classList.toggle("off",!(cur()&&isRunnableFile(cur().path||cur().name)));
+  var br=$("btnRun");if(br&&typeof isRunnableFile==="function")br.classList.toggle("off",!(cur()&&isRunnableFile(cur().path||cur().name)));
   md.style.fontWeight=settings.mdPreview?"bold":"normal";
 }
 function setZoomFont(){editor.style.fontSize=(settings.size*zoom/100)+"px";}
 function setZoom(z){zoom=Math.max(10,Math.min(500,z));setZoomFont();updateStatus();scheduleSessionSave();}
-function renderPreview(){if(cur())preview.innerHTML=mdRender(editor.value);}
+function renderPreview(){var t=cur();if(t)preview.innerHTML=mdRender(resolveAttachments(editor.value,t));}
 function toggleMd(){
   settings.mdPreview=!settings.mdPreview;saveSettings();applyEditor();
   if(settings.mdPreview&&cur()&&!isMarkdownFile(cur().name))updateStatus("Prévia ativa: renomeie para .md para ver formatado");
@@ -55,8 +56,53 @@ function askMarkdownConvert(alt){
   $("mdNo").onclick=function(){var c=cur();if(c)c.mdAskDeclined=true;closeDlg();updateStatus("Foto inserida (Markdown): "+(alt||"foto")+" — toque aqui para converter para .md",function(){var cc=cur();if(cc)cc.mdAskDeclined=false;askMarkdownConvert(alt);});};
   return true;
 }
+var IMG_INLINE_LIMIT=1000;
+function ensureAttachments(t){if(!t)return {};if(!t.attachments||typeof t.attachments!=="object")t.attachments={};return t.attachments;}
+function imageExtOf(dataUrl){var mt=String(dataUrl||"").match(/^data:(image\/[a-z0-9+.-]+)/i);var m=(mt&&mt[1]||"image/png").toLowerCase();if(m==="image/jpeg")return ".jpg";if(m==="image/gif")return ".gif";if(m==="image/webp")return ".webp";if(m==="image/svg+xml")return ".svg";if(m==="image/bmp")return ".bmp";return ".png";}
+function nextImageName(t,alt,ext){
+  var att=ensureAttachments(t);
+  var base=String(alt||"imagem").toLowerCase().replace(/[^a-z0-9\u00c0-\u024f]+/gi,"-").replace(/^-+|-+$/g,"").slice(0,40)||"imagem";
+  var n=1,name=""+base+ext;
+  while(att[name]||editor.value.indexOf("]("+name+")")>=0){n++;name=base+"-"+n+ext;}
+  return name;
+}
+function compactLongDataUrlsInText(text,t){
+  var n=0;
+  var out=String(text).replace(/!\[([^\]]*)\]\((data:image\/[a-z0-9+.\-]+;base64,[A-Za-z0-9+/=]+)\)/gi,function(m,alt,url){
+    if(url.length<IMG_INLINE_LIMIT)return m;
+    var att=ensureAttachments(t),k;
+    for(k in att){if(att[k]===url){n++;return "!["+alt+"]("+k+")";}}
+    var nm=nextImageName(t,alt||"imagem",imageExtOf(url));
+    att[nm]=url;n++;
+    return "!["+alt+"]("+nm+")";
+  });
+  return {text:out,count:n};
+}
+function compactTabImages(t){
+  if(!t||typeof t.content!=="string"||t.content.indexOf("data:image/")<0)return 0;
+  var r=compactLongDataUrlsInText(t.content,t);
+  if(!r.count)return 0;
+  t.content=r.text;t.updatedAt=Date.now();
+  if(typeof editor!=="undefined"&&tabs.indexOf(t)===active&&editor.value!==r.text){
+    var pos=null;try{pos=editor.selectionStart;}catch(e){}
+    editor.value=r.text;
+    try{if(pos!=null)editor.setSelectionRange(Math.max(0,Math.min(pos,r.text.length)),Math.max(0,Math.min(pos,r.text.length)));}catch(e){}
+  }
+  if(typeof scheduleSessionSave==="function")scheduleSessionSave();
+  return r.count;
+}
+function resolveAttachments(text,t){
+  var s=String(text==null?"":text),att=(t&&t.attachments)||{},k;
+  for(k in att){if(s.indexOf(k)>=0)s=s.split("]("+k+")").join("]("+att[k]+")");}
+  return s;
+}
 function insertMarkdownImage(dataUrl,alt){
-  var md="!["+alt+"]("+dataUrl+")";
+  var host=cur(),short=null;
+  if(host&&/^data:image\//i.test(dataUrl||"")&&String(dataUrl).length>IMG_INLINE_LIMIT){
+    short=nextImageName(host,alt,imageExtOf(dataUrl));
+    ensureAttachments(host)[short]=dataUrl;
+  }
+  var md="!["+alt+"]("+(short||dataUrl)+")";
   var s=editor.selectionStart||0,e=editor.selectionEnd||s,v=editor.value;
   var text=(s>0&&v.charAt(s-1)!=="\n"?"\n":"")+md+"\n";
   editor.focus();
@@ -64,12 +110,13 @@ function insertMarkdownImage(dataUrl,alt){
   if(!ok){editor.value=v.slice(0,s)+text+v.slice(e);editor.setSelectionRange(s+text.length,s+text.length);}
   markModified();if(settings.mdPreview)renderPreview();
   var t=cur();
+  var tag=short?("Foto inserida de forma compacta: "+alt+" ("+short+")"):"Foto inserida (Markdown): "+alt;
   if(t&&!isMarkdownFile(t.name)){
     if(!t.mdAskDeclined&&typeof dlg==="function"){askMarkdownConvert(alt);return;}
-    updateStatus("Foto inserida (Markdown): "+alt+" — toque aqui para converter para .md",function(){var c=cur();if(c)c.mdAskDeclined=false;askMarkdownConvert(alt);});
+    updateStatus(tag+" — toque aqui para converter para .md",function(){var c=cur();if(c)c.mdAskDeclined=false;askMarkdownConvert(alt);});
     return;
   }
-  updateStatus("Foto inserida (Markdown): "+alt);
+  updateStatus(tag);
 }
 function insertImageFile(file){
   if(!file||!/^image\//i.test(file.type||""))return false;

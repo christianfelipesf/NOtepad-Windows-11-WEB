@@ -33,11 +33,11 @@ function saveSession(){
   try{
     if(typeof tabs==="undefined")return;
     var data={v:1,active:active,zoom:zoom,tabs:tabs.map(function(t){
-      return {name:t.name,path:t.path,content:(typeof editor!=="undefined"&&tabs.indexOf(t)===active)?editor.value:t.content,encoding:t.encoding,eol:t.eol,modified:t.modified,createdAt:t.createdAt,updatedAt:t.updatedAt,vaultId:t.vaultId||null,origName:t.origName||null,origPath:t.origPath||null};
+      return {name:t.name,path:t.path,content:(typeof editor!=="undefined"&&tabs.indexOf(t)===active)?editor.value:t.content,encoding:t.encoding,eol:t.eol,modified:t.modified,createdAt:t.createdAt,updatedAt:t.updatedAt,vaultId:t.vaultId||null,origName:t.origName||null,origPath:t.origPath||null,attachments:t.attachments||{}};
     })};
     var s=JSON.stringify(data);
     if(s.length>4500000){
-      data.tabs=data.tabs.map(function(t){return {name:t.name,path:t.path,content:t.content.slice(0,200000),encoding:t.encoding,eol:t.eol,modified:t.modified,createdAt:t.createdAt,updatedAt:t.updatedAt};});
+      data.tabs=data.tabs.map(function(t){return {name:t.name,path:t.path,content:t.content.slice(0,200000),encoding:t.encoding,eol:t.eol,modified:t.modified,createdAt:t.createdAt,updatedAt:t.updatedAt,attachments:{}};});
       s=JSON.stringify(data);
     }
     localStorage.setItem(SES_KEY,s);

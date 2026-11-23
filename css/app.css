@@ -3,6 +3,12 @@
 .mi:hover,.mi.open{background:var(--hover)}
 .mi.open{background:var(--pressed)}
 .gear{margin-left:auto;width:36px;height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--text)}
+.play{margin-left:auto;width:36px;height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--text);font-size:12px}
+.play:hover{background:var(--hover)}
+.play.off{opacity:.4}
+.menubar .gear{margin-left:4px}
+.run-log{background:var(--field);border:1px solid var(--sep);border-radius:6px;padding:10px 12px;font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:180px;overflow:auto;color:var(--text);font-family:Consolas,monospace;min-height:44px}
+#rCode{width:100%;box-sizing:border-box;background:var(--field);border:1px solid var(--sep);border-radius:4px;color:var(--text);padding:8px;font-size:12px;font-family:Consolas,monospace;resize:vertical}
 .gear:hover{background:var(--hover)}
 .gear svg{width:16px;height:16px}
 .menu{position:absolute;top:34px;min-width:230px;background:var(--dlg);border:1px solid var(--sep);border-radius:8px;padding:4px;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.45);display:none}

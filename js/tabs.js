@@ -13,13 +13,14 @@ function moveTab(from,to){
 function newTab(name,content){
   untitledN++;
   var fb=name||("Sem título"+(untitledN>1?" "+untitledN:""));
-  var now=Date.now();var t={name:fb,fallback:fb,path:null,handle:null,content:content||"",modified:false,encoding:"UTF-8",eol:"CRLF",createdAt:now,updatedAt:now};
+  var now=Date.now();var t={name:fb,fallback:fb,path:null,handle:null,content:content||"",modified:false,encoding:"UTF-8",eol:"CRLF",createdAt:now,updatedAt:now,attachments:{}};
   tabs.push(t);active=tabs.length-1;
   syncEditor();renderTabs();updateStatus();scheduleSessionSave();
   return t;
 }
 function syncEditor(){
   var t=cur();if(!t)return;
+  if(typeof compactTabImages==="function")compactTabImages(t);
   if(editor.value!==t.content)editor.value=t.content;
   try{var ae=tabsEl.children[active];if(ae&&ae.scrollIntoView)ae.scrollIntoView({block:"nearest"});}catch(e){}
   applyTheme();applyEditor();
@@ -70,7 +71,7 @@ function openFileObject(file,buf){
   if(text.indexOf("\0")>=0){alert("Arquivo binário não suportado: "+((file&&file.name)||""));return false;}
   for(var k=0;k<tabs.length;k++){if(tabs[k].path===file.name){active=k;if(!tabs[k].modified){tabs[k].content=text;tabs[k].encoding=info.enc;tabs[k].eol=eol;tabs[k].modified=false;if(dotLog){tabs[k].content=text+"\r\n"+stampNow()+"\r\n";tabs[k].modified=true;}}syncEditor();renderTabs();updateStatus();scheduleSessionSave();return tabs[k];}}
   untitledN++;
-  var now2=Date.now();var t={name:file.name,path:file.name,handle:file.handle||null,content:text,modified:false,encoding:info.enc,eol:eol,createdAt:now2,updatedAt:now2};
+  var now2=Date.now();var t={name:file.name,path:file.name,handle:file.handle||null,content:text,modified:false,encoding:info.enc,eol:eol,createdAt:now2,updatedAt:now2,attachments:{}};
   if(dotLog){var ts="\r\n"+stampNow()+"\r\n";t.content=text+ts;t.modified=true;}
   tabs.push(t);active=tabs.length-1;
   syncEditor();renderTabs();updateStatus();scheduleSessionSave();return t;
@@ -89,11 +90,12 @@ function stampForSave(){
   document.execCommand("insertText",false,line);
   markModified();
 }
-function suggestedSaveName(t){var n=t.path||t.name||"Sem título";if(/\.(txt|md|markdown|mdown?|html?|m?js|css|json|csv)$/i.test(n))return n;return n+".txt";}
+function suggestedSaveName(t){var n=t.path||t.name||"Sem título";if(/\.[a-z0-9]{1,10}$/i.test(n))return n;return n+".txt";}
 function saveTab(i,withPicker){
   var t=tabs[i];if(!t)return Promise.resolve(false);
   stampForSave();
-  var body=toEol(editor.value,t.eol),r=encodeContent(body,t.encoding),bytes=r.bytes;
+  var fullSrc=(typeof resolveAttachments==="function")?resolveAttachments(editor.value,t):editor.value;
+  var body=toEol(fullSrc,t.eol),r=encodeContent(body,t.encoding),bytes=r.bytes;
   function done(ok,msg){
     if(!ok)return false;
     t.content=editor.value;t.modified=false;
@@ -133,8 +135,8 @@ var closedStack=[];
 var closedVault=[];
 function loadClosedVault(){try{var d=JSON.parse(localStorage.getItem(CLOSED_KEY)||"null");if(d&&Array.isArray(d.items))closedVault=d.items.filter(function(e){return e&&typeof e.content==="string";});}catch(e){closedVault=[];}return closedVault;}
 function saveClosedVault(){try{closedVault=closedVault.slice(-50);localStorage.setItem(CLOSED_KEY,JSON.stringify({v:1,items:closedVault}));return true;}catch(e){return false;}}
-function vaultEntryOf(t){return {id:"c"+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36),name:t.name||"Sem título",path:t.path||null,content:t.content||"",encoding:t.encoding||"UTF-8",eol:t.eol||"CRLF",createdAt:t.createdAt||Date.now(),updatedAt:t.updatedAt||t.createdAt||Date.now(),closedAt:Date.now(),origName:t.origName||null,origPath:t.origPath||null};}
-function vaultUpsert(t){function touch(e){e.content=t.content;e.updatedAt=Date.now();e.closedAt=Date.now();e.name=t.name;e.path=t.path;if(t.origName)e.origName=t.origName;if(t.origPath)e.origPath=t.origPath;saveClosedVault();t.vaultId=e.id;return e;}if(t.vaultId){for(var j=0;j<closedVault.length;j++){if(closedVault[j].id===t.vaultId)return touch(closedVault[j]);}t.vaultId=null;}var key=t.path||t.name;for(var k=0;k<closedVault.length;k++){if((closedVault[k].path||closedVault[k].name)===key)return touch(closedVault[k]);}var e=vaultEntryOf(t);closedVault.push(e);saveClosedVault();t.vaultId=e.id;return e;}
+function vaultEntryOf(t){return {id:"c"+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36),name:t.name||"Sem título",path:t.path||null,content:t.content||"",encoding:t.encoding||"UTF-8",eol:t.eol||"CRLF",createdAt:t.createdAt||Date.now(),updatedAt:t.updatedAt||t.createdAt||Date.now(),closedAt:Date.now(),origName:t.origName||null,origPath:t.origPath||null,attachments:Object.assign({},t.attachments||{})};}
+function vaultUpsert(t){function touch(e){e.content=t.content;e.updatedAt=Date.now();e.closedAt=Date.now();e.name=t.name;e.path=t.path;e.attachments=Object.assign({},t.attachments||{});if(t.origName)e.origName=t.origName;if(t.origPath)e.origPath=t.origPath;saveClosedVault();t.vaultId=e.id;return e;}if(t.vaultId){for(var j=0;j<closedVault.length;j++){if(closedVault[j].id===t.vaultId)return touch(closedVault[j]);}t.vaultId=null;}var key=t.path||t.name;for(var k=0;k<closedVault.length;k++){if((closedVault[k].path||closedVault[k].name)===key)return touch(closedVault[k]);}var e=vaultEntryOf(t);closedVault.push(e);saveClosedVault();t.vaultId=e.id;return e;}
 function vaultSaveTab(i){var t=tabs[i];if(!t)return null;if(tabs.indexOf(t)===active)t.content=editor.value;t.updatedAt=Date.now();var e=vaultUpsert(t);renderTabs();updateStatus("Guardada no navegador: "+t.name);scheduleSessionSave();return e;}
 function vaultSaveAll(){if(!tabs.length)return 0;if(tabs.indexOf(cur())===active)cur().content=editor.value;var n=0;tabs.forEach(function(t){t.updatedAt=t.updatedAt||Date.now();vaultUpsert(t);n++;});updateStatus(n+(n===1?" guia guardada no navegador":" guias guardadas no navegador"));return n;}
 function vaultKeepCount(){var n=0;tabs.forEach(function(x){var body=(tabs.indexOf(x)===active)?editor.value:(x.content||"");if(x.path||String(body).length>0)n++;});return n;}
@@ -166,11 +168,11 @@ function vaultRename(id,name){var e=vaultGet(id);if(!e||!String(name).trim())ret
 function vaultEditContent(id,content){var e=vaultGet(id);if(!e)return false;e.content=String(content);e.updatedAt=Date.now();saveClosedVault();return true;}
 function vaultRemove(id){for(var k=0;k<closedVault.length;k++){if(closedVault[k].id===id){closedVault.splice(k,1);saveClosedVault();return true;}}return false;}
 function vaultClear(){closedVault.length=0;saveClosedVault();}
-function vaultReopen(id){var e=vaultGet(id);if(!e)return false;untitledN++;var t={name:e.name,fallback:e.name,path:e.path,handle:null,content:e.content,modified:false,encoding:e.encoding,eol:e.eol,createdAt:e.createdAt,updatedAt:e.updatedAt,vaultId:e.id,origName:e.origName||null,origPath:e.origPath||null};tabs.push(t);active=tabs.length-1;syncEditor();renderTabs();updateStatus("Reaberta: "+e.name);scheduleSessionSave();return true;}
+function vaultReopen(id){var e=vaultGet(id);if(!e)return false;untitledN++;var t={name:e.name,fallback:e.name,path:e.path,handle:null,content:e.content,modified:false,encoding:e.encoding,eol:e.eol,createdAt:e.createdAt,updatedAt:e.updatedAt,vaultId:e.id,origName:e.origName||null,origPath:e.origPath||null,attachments:Object.assign({},e.attachments||{})};tabs.push(t);active=tabs.length-1;syncEditor();renderTabs();updateStatus("Reaberta: "+e.name);scheduleSessionSave();return true;}
 function pushClosed(i){
   var t=tabs[i];if(!t)return;
   if(tabs.indexOf(t)===active)t.content=editor.value;
-  closedStack.push({tab:{name:t.name,fallback:t.fallback,path:t.path,content:t.content,encoding:t.encoding,eol:t.eol,modified:t.modified,createdAt:t.createdAt,updatedAt:t.updatedAt,origName:t.origName||null,origPath:t.origPath||null},index:i});
+  closedStack.push({tab:{name:t.name,fallback:t.fallback,path:t.path,content:t.content,encoding:t.encoding,eol:t.eol,modified:t.modified,createdAt:t.createdAt,updatedAt:t.updatedAt,origName:t.origName||null,origPath:t.origPath||null,attachments:Object.assign({},t.attachments||{})},index:i});
   if(closedStack.length>10)closedStack.shift();
 }
 function reopenClosed(){
