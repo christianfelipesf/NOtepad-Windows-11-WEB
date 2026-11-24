@@ -305,6 +305,7 @@ function importZipData(buf){
     var base=e.name.replace(/^.*[\/\\]/,"").replace(/\.(txt|md)$/i,"")||"Sem título";
     var target=claimed[base]?uniq(base,takenTab,claimed):base;
     claimed[target]=1;
+    if((typeof detectBinKind==="function")&&!/\.zip$/i.test(e.name||"")&&detectBinKind(e.name,e.body)){s++;return;}
     var t=openFileObject({name:target},e.body.buffer);
     if(t&&typeof t.n==="number"){n+=t.n;s+=(t.s||0);return;}
     if(!t){s++;return;}
@@ -401,6 +402,7 @@ function bindGlobalEvents(){
     else if(c&&e.key.toLowerCase()==="h"){e.preventDefault();hideBoxes();$("replaceBox").classList.add("show");}
     else if(c&&e.key.toLowerCase()==="g"){e.preventDefault();openGoto();}
     else if(e.key==="F3"){e.preventDefault();var q=$("findText").value;if(q)findInEditor(q,!e.shiftKey,settings.matchCase,settings.wrapAround);}
+    else if(e.key==="Escape"&&!c){var ccv=(typeof cur==="function")?cur():null;if(ccv&&(typeof isViewerTab==="function")&&isViewerTab(ccv)&&!$("ovl").classList.contains("show")){e.preventDefault();closeTab(active);}}
     else if(e.key==="F5"&&!c){e.preventDefault();insertTimeDate();}
     else if(e.key==="F9"&&!c){e.preventDefault();if(typeof openRunPanel==="function")openRunPanel();else openRunInNewTab();}
     else if(c&&(e.key==="+"||e.key==="=")){e.preventDefault();setZoom(zoom+10);}

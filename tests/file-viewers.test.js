@@ -190,6 +190,19 @@ describe("visualizadores de arquivo", () => {
     assert.match(t.run("cur().content"), /hello/);
   });
 
+  it("ZIP só de imagens vira lista, sem explodir guias", () => {
+    const t = boot();
+    const zb = storeZip([
+      { name: "a.png", data: new Uint8Array([0x89, 0x50, 0x4E, 0x47, 0x00]) },
+      { name: "b.jpg", data: new Uint8Array([0xFF, 0xD8, 0xFF, 0x00]) }
+    ]);
+    const before = t.run("tabs.length");
+    t.run("openFileObject({name:'fotos.zip'},new Uint8Array(" + JSON.stringify([...zb]) + ").buffer)");
+    assert.equal(t.run("cur().bin.kind"), "zip");
+    assert.equal(t.run("cur().bin.entries.length"), 2);
+    assert.equal(t.run("tabs.length"), before + 1);
+  });
+
   it("sessão guarda o visualizador", () => {
     const t = boot();
     t.run("openFileObject({name:'foto.png'},new Uint8Array([0x89,0x50,0x4E,0x47,0x00]).buffer)");

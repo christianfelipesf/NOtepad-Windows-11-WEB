@@ -141,7 +141,7 @@ function renderViewer(t) {
   if (!t || !t.bin) return;
   var url = viewerUrl(t), kind = t.bin.kind;
   var name = esc(t.path || t.name || "arquivo");
-  var html = "<p class=\"vmeta\"><b>" + name + "</b> • " + humanSize(t.bin.size || 0) + " • só visualização</p>";
+  var html = "<p class=\"vmeta\"><b>" + name + "</b> • " + humanSize(t.bin.size || 0) + " • só visualização <button class=\"btn vclose\">Fechar (Esc)</button></p>";
   if (kind === "image" && url) html += "<img class=\"vimg\" src=\"" + url + "\" alt=\"" + name + "\">";
   else if (kind === "pdf" && url) html += "<iframe class=\"vpdf\" title=\"" + name + "\" src=\"" + url + "\"></iframe>";
   else if (kind === "audio" && url) html += "<audio class=\"vaud\" controls src=\"" + url + "\"></audio>";
@@ -150,6 +150,10 @@ function renderViewer(t) {
   else if (!url) html += "<p><em>Prévia indisponível: o conteúdo não coube no salvamento local. Abra o arquivo de novo.</em></p>";
   if (url) html += "<p><a class=\"btn\" href=\"" + url + "\" download=\"" + name + "\">Baixar arquivo</a></p>";
   preview.innerHTML = html;
+  var _vt = t;
+  Array.prototype.forEach.call(preview.querySelectorAll ? preview.querySelectorAll(".vclose") : [], function (b) {
+    b.onclick = function () { var i = tabs.indexOf(_vt); if (i >= 0) closeTab(i); };
+  });
   var btns = preview.querySelectorAll ? preview.querySelectorAll(".zopen") : [];
   Array.prototype.forEach.call(btns, function (b) {
     b.onclick = function () { openZipEntry(cur(), +b.getAttribute("data-i")); };
