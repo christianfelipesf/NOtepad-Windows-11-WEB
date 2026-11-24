@@ -109,7 +109,7 @@ body.dragging .editor-wrap{outline:2px dashed var(--accent);outline-offset:-10px
 .crow:hover{background:var(--hover)}
 .crow.sel{background:var(--hover);box-shadow:inset 2px 0 0 var(--accent)}
 .crow .cn{display:block;font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.crow .cd{display:block;font-size:11px;color:var(--text2);margin-top:2px;line-height:1.45}
+.crow .cd{display:block;font-size:11px;color:var(--text2);margin-top:2px;line-height:1.45}.tlist{max-height:300px;overflow:auto;border:1px solid var(--sep);border-radius:6px;margin:8px 0}.trow{display:flex;align-items:center;gap:12px;padding:8px 10px;border-bottom:1px solid var(--sep);cursor:pointer}.trow:last-child{border-bottom:none}.trow:hover{background:var(--hover)}.trow.sel{background:var(--hover);box-shadow:inset 2px 0 0 var(--accent)}.trow .tn{font-size:12px;color:var(--text)}.tmock{width:64px;height:42px;border-radius:4px;overflow:hidden;flex-shrink:0;display:block;border:1px solid var(--sep)}.tmock-bar{display:block;height:13px;position:relative}.tmock-tab{display:block;position:absolute;left:9px;top:4px;width:26px;height:9px;border-radius:3px 3px 0 0}.tmock-ln{display:block;height:3px;border-radius:2px;margin:4px 8px 0;opacity:.85}.tmock-ln.short{width:60%}.tmock-ln.acc{width:35%}@media (max-width:640px){.tlist{max-height:240px}}
 .newtab svg{display:block}
 .cdetail{flex:1;min-width:0;overflow:auto;max-height:44vh;min-height:160px}
 .cmeta{font-size:11px;color:var(--text2);margin:6px 0}

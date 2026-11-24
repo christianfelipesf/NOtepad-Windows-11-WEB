@@ -11,7 +11,7 @@
 
   function syncThemeColor() {
     try {
-      var colors = { dark: "#0c0c0c", light: "#eeeeee", white: "#ffffff", sepia: "#e8dcc3", midnight: "#0a1628", ubuntu: "#2C001E", firefox: "#15141A", blackred: "#000000" };
+      var colors = { dark: "#0c0c0c", light: "#eeeeee", white: "#ffffff", sepia: "#e8dcc3", midnight: "#0a1628", ubuntu: "#2C001E", firefox: "#15141A", blackred: "#000000", dracula: "#191a21", nord: "#242933", gruvbox: "#1d2021", solarized: "#073642" };
       var m = document.getElementById("metaTheme");
       if (m && typeof settings !== "undefined") m.setAttribute("content", colors[settings.theme] || "#0c0c0c");
     } catch (e) {}

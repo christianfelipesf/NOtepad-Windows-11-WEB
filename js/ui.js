@@ -42,8 +42,8 @@ function openSaveAs(){
   $("sOk").onclick=function(){t.name=$("sName").value||t.name;t.path=t.name;t.encoding=$("sEnc").value;t.eol=$("sEol").value;closeDlg();saveTab(active,false).then(function(){renderTabs();updateStatus();applyEditor();});};
 }
 function openSettings(){
-  dlg("<h2>Configurações</h2>"
-    +"<div class='field'><label>Tema</label><select id='oTheme'><option value='dark'>Escuro (padrão)</option><option value='light'>Claro</option><option value='white'>Branco</option><option value='sepia'>Sépia</option><option value='midnight'>Meia-noite</option><option value='ubuntu'>Ubuntu</option><option value='firefox'>Firefox</option><option value='blackred'>Preto e vermelho</option></select></div>"
+  var oThemeOpts=THEME_ORDER.map(function(v){return "<option value='"+v+"'"+(settings.theme===v?" selected":"")+">"+esc((typeof THEME_NAMES!=="undefined"?THEME_NAMES[v]:null)||v)+(v==="dark"?" (padrão)":"")+"</option>";}).join("");dlg("<h2>Configurações</h2>"
+    +"<div class='field'><label>Tema</label><select id='oTheme'>"+oThemeOpts+"</select></div>"
     +"<div class='check'><input type='checkbox' id='oWrap' "+(settings.wrap?"checked":"")+"><label for='oWrap'>Quebra automática de linha</label></div>"
     +"<div class='check'><input type='checkbox' id='oStatus' "+(settings.status?"checked":"")+"><label for='oStatus'>Barra de status</label></div>"
     +"<div class='check'><input type='checkbox' id='oStamp' "+(settings.stampOnSave?"checked":"")+"><label for='oStamp'>Inserir data/hora no fim ao salvar</label></div>"
@@ -121,13 +121,13 @@ function buildMenus(){
   item(S,"Sobre o RENotepad",null,openAbout);
 }
 function openThemeChooser(){
-  var h="<h2>Tema</h2><div class='field'><label>Escolha o tema</label><select id='tPick'>";
-  THEME_ORDER.forEach(function(v){h+="<option value='"+v+"'"+(settings.theme===v?" selected":"")+">"+((typeof THEME_NAMES!=="undefined"?THEME_NAMES[v]:null)||v)+"</option>";});
-  h+="</select></div><div class='row'><button class='btn primary' id='tOk'>Aplicar</button><button class='btn' onclick='closeDlg()'>Fechar</button></div>";
+  var h="<h2>Tema</h2><div class='field'><label>Toque num tema para pré-visualizar. Aplicar salva, Fechar desfaz.</label></div><div class='tlist'>";
+  THEME_ORDER.forEach(function(v){var s=themeSwatch(v),nm=((typeof THEME_NAMES!=="undefined"?THEME_NAMES[v]:null)||v);h+="<div class='trow"+(settings.theme===v?" sel":"")+"' id='tRow_"+v+"' title='"+esc(nm)+"'>"+"<span class='tmock' style='background:"+esc(s.bg||s.surface||"#888")+"'>"+"<span class='tmock-bar' style='background:"+esc(s.strip||"#888")+"'><span class='tmock-tab' style='background:"+esc(s.surface||"#aaa")+"'></span></span>"+"<span class='tmock-ln' style='background:"+esc(s.fg||s.accent||"#ccc")+"'></span>"+"<span class='tmock-ln short' style='background:"+esc(s.fg||s.accent||"#ccc")+"'></span>"+"<span class='tmock-ln acc' style='background:"+esc(s.accent||"#ccc")+"'></span></span>"+"<span class='tn'>"+esc(nm)+"</span></div>";});
+  h+="</div><div class='row'><button class='btn primary' id='tOk'>Aplicar</button><button class='btn' id='tCancel'>Fechar</button></div>";
   dlg(h);
-  $("tOk").onclick=function(){settings.theme=$("tPick").value;saveSettings();applyTheme();buildMenus();updateStatus();closeDlg();};
+  var prev=settings.theme;THEME_ORDER.forEach(function(v){var r=$("tRow_"+v);if(r)r.onclick=function(){settings.theme=v;applyTheme();applyEditor();refreshThemeRows();};});$("tOk").onclick=function(){saveSettings();applyTheme();buildMenus();updateStatus();closeDlg();};$("tCancel").onclick=function(){settings.theme=prev;applyTheme();applyEditor();closeDlg();};
 }
-function openProps(){
+function themeSwatch(name){try{var de=document.documentElement,prev=de.dataset?de.dataset.theme:null,cs;if(de.dataset)de.dataset.theme=name;cs=getComputedStyle(de);function g(k){try{return (cs.getPropertyValue(k)||"").trim();}catch(e){return "";}}var o={strip:g("--strip"),surface:g("--surface"),accent:g("--accent"),bg:g("--edit-bg"),fg:g("--edit-fg")};if(de.dataset)de.dataset.theme=prev;return o;}catch(e){return {};}} function refreshThemeRows(){THEME_ORDER.forEach(function(v){var r=$("tRow_"+v);if(r&&r.classList){if(settings.theme===v)r.classList.add("sel");else r.classList.remove("sel");}});} function openProps(){
   var t=cur();if(!t)return;
   if(tabs.indexOf(t)===active)t.content=editor.value;
   var n=t.content.length,ln=t.content.length?t.content.split("\n").length:1;

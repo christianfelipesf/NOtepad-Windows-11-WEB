@@ -16,8 +16,8 @@ function loadSettings(){
   if(THEME_ORDER.indexOf(settings.theme)<0)settings.theme="dark";
 }
 function saveSettings(){try{localStorage.setItem(SET_KEY,JSON.stringify(settings));}catch(e){}}
-var THEME_ORDER=["dark","light","white","sepia","midnight","ubuntu","firefox","blackred"];
-var THEME_NAMES={dark:"Escuro",light:"Claro",white:"Branco",sepia:"Sépia",midnight:"Meia-noite",ubuntu:"Ubuntu",firefox:"Firefox",blackred:"Preto e vermelho"};
+var THEME_ORDER=["dark","light","white","sepia","midnight","ubuntu","firefox","blackred","dracula","nord","gruvbox","solarized"];
+var THEME_NAMES={dark:"Escuro",light:"Claro",white:"Branco",sepia:"Sépia",midnight:"Meia-noite",ubuntu:"Ubuntu",firefox:"Firefox",blackred:"Preto e vermelho",dracula:"Drácula",nord:"Nord",gruvbox:"Gruvbox",solarized:"Solarized"};
 function themeName(){return THEME_NAMES[settings.theme]||"Escuro";}
 function nextTheme(){settings.theme=THEME_ORDER[(THEME_ORDER.indexOf(settings.theme)+1)%THEME_ORDER.length];saveSettings();applyTheme();}
 function fmtDT(ts){try{return new Date(ts).toLocaleString([],{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});}catch(e){return "";}}
