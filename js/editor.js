@@ -218,7 +218,7 @@ function pasteImageFromClipboard(){
     }).catch(function(){pickImage();});
   }else pickImage();
 }
-editor.addEventListener("paste",function(e){
+if(typeof editor!=="undefined"&&editor&&editor.addEventListener)editor.addEventListener("paste",function(e){
   var cd=e.clipboardData;if(!cd)return;
   var files=[];
   if(cd.files&&cd.files.length)files=Array.from(cd.files);

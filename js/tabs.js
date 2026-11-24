@@ -69,7 +69,7 @@ function openFileObject(file,buf){
   if(buf.byteLength>=1073741824){alert("Arquivo de 1 GiB ou mais não suportado.");return;}
   if(/\.zip$/i.test((file&&file.name)||"")){return importZipData(buf);}
   var u8=new Uint8Array(buf),info=detectEncoding(u8),text=decodeBuf(u8,info),eol=detectEol(text),dotLog=text.slice(0,4)===".LOG";
-  if(text.indexOf("\0")>=0){alert("Arquivo binário não suportado: "+((file&&file.name)||""));return false;}
+  if(text.indexOf("\0")>=0){alert("Arquivo binário não suportado como texto: "+((file&&file.name)||"")+" — renomeie a nota para .md e arraste o arquivo para dentro dela para anexar.");return false;}
   for(var k=0;k<tabs.length;k++){if(tabs[k].path===file.name){active=k;if(!tabs[k].modified){tabs[k].content=text;tabs[k].encoding=info.enc;tabs[k].eol=eol;tabs[k].modified=false;if(dotLog){tabs[k].content=text+"\r\n"+stampNow()+"\r\n";tabs[k].modified=true;}}syncEditor();renderTabs();updateStatus();scheduleSessionSave();return tabs[k];}}
   untitledN++;
   var now2=Date.now();var t={name:file.name,path:file.name,handle:file.handle||null,content:text,modified:false,encoding:info.enc,eol:eol,createdAt:now2,updatedAt:now2,attachments:{}};
