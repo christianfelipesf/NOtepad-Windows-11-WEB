@@ -38,7 +38,10 @@ function renderTabs(){
       line=cand;break;
     }
     if(line.length>40)line=line.slice(0,40)+"…";
-    a.name=line||a.fallback||"Sem título";
+    var wantMd=(typeof isMarkdownFile==="function")&&(isMarkdownFile(a.name)||isMarkdownFile(a.fallback));
+    if(wantMd&&line&&!isMarkdownFile(line))line=line+".md";
+    if(wantMd&&!line&&!isMarkdownFile(a.fallback)&&isMarkdownFile(a.name))line=a.name;
+    a.name=line||a.fallback||(wantMd?"Sem título.md":"Sem título");
   }
   tabsEl.innerHTML="";
   tabs.forEach(function(t,i){
