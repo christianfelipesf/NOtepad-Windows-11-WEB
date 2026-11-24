@@ -1,6 +1,6 @@
 "use strict";
 /* Interface: menus, diálogos, barra de status e eventos globais. */
-function dlg(html){$("dlgBox").innerHTML=html;$("ovl").classList.add("show");}
+function dlg(html){var b=$("dlgBox");b.innerHTML=html;if(b.classList&&b.classList.toggle)b.classList.toggle("wide",String(html).indexOf("cwrap")>=0);$("ovl").classList.add("show");}
 function closeDlg(){$("ovl").classList.remove("show");}
 function updateStatus(msg,link){
   var t=cur();if(!t){var mm=$("stMsg");if(mm&&typeof msg==="string")mm.textContent=msg;return;}

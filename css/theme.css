@@ -20,7 +20,7 @@
 [data-theme="firefox"] .tab:nth-child(5n){border-top-color:#00DDFF}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;background:var(--surface);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden;font-size:12px;user-select:none}
+body{font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;background:var(--surface);color:var(--text);display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;font-size:12px;user-select:none}
 button{font:inherit;color:inherit;background:none;border:none}
 .strip{height:42px;background:var(--strip);display:flex;align-items:stretch;flex-shrink:0;position:relative}
 .app-icon{width:48px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:7px;flex-shrink:0}
