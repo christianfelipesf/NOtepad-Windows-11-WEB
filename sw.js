@@ -1,7 +1,7 @@
 "use strict";
 /* Service worker: deixa o RENotepad instalável e usável offline. */
-var APP_VERSION = "v5";
-var CACHE = "renotepad-v5";
+var APP_VERSION = "v6";
+var CACHE = "renotepad-v6";
 var SHELL = [
   "./",
   "./index.html",
@@ -17,6 +17,7 @@ var SHELL = [
   "./js/ui.js",
   "./js/run.js",
   "./js/sync.js",
+  "./js/viewers.js",
   "./js/main.js",
   "./js/pwa.js",
   "./icons/icon.svg",

@@ -7,9 +7,11 @@ function applyEditor(){
   setZoomFont();
   editor.classList.toggle("wrap",settings.wrap);
   $("statusbar").style.display=settings.status?"flex":"none";
-  var show=settings.mdPreview&&cur()&&isMarkdownFile(cur().name);
+  var isV=(typeof isViewerTab==="function")&&isViewerTab(cur());
+  var show=((settings.mdPreview&&cur()&&(isMarkdownFile(cur().name)||((typeof isCsvFile==="function")&&isCsvFile(cur().name))||((typeof isHtmlFile==="function")&&isHtmlFile(cur().path||cur().name)))))||isV;
+  try{editor.style.display=isV?"none":"";}catch(_){}
   preview.classList.toggle("show",!!show);
-  if(show)renderPreview();
+  if(show){if(isV)renderViewer(cur());else renderPreview();}
   var mb=$("mdbar");
   if(mb)mb.classList.toggle("show",!!(settings.mdBar&&cur()&&isMarkdownFile(cur().name)));
   var md=$("stMd");
@@ -20,7 +22,7 @@ function applyEditor(){
 }
 function setZoomFont(){editor.style.fontSize=(settings.size*zoom/100)+"px";}
 function setZoom(z){zoom=Math.max(10,Math.min(500,z));setZoomFont();updateStatus();scheduleSessionSave();}
-function renderPreview(){var t=cur();if(t)preview.innerHTML=mdRender(resolveAttachments(editor.value,t));}
+function renderPreview(){var t=cur();if(!t)return;if((typeof isCsvFile==="function")&&isCsvFile(t.name)){try{preview.innerHTML=csvRender(editor.value);}catch(e){}return;}if((typeof isHtmlFile==="function")&&isHtmlFile(t.path||t.name)){renderHtmlPreview(editor.value);return;}preview.innerHTML=mdRender(resolveAttachments(editor.value,t));}
 function toggleMd(){
   settings.mdPreview=!settings.mdPreview;saveSettings();applyEditor();
   if(settings.mdPreview&&cur()&&!isMarkdownFile(cur().name))updateStatus("Prévia ativa: renomeie para .md para ver formatado");

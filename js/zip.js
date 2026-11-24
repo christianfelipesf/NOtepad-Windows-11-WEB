@@ -90,3 +90,33 @@ function parseZip(buf){
   }
   return out;
 }
+/* Lista tolerante: lê só o diretório central (nomes e tamanhos), sem exigir
+   método STORE. Usada pelo visualizador de ZIP. */
+function listZipEntries(buf) {
+  var bytes = (buf instanceof Uint8Array) ? buf : new Uint8Array(buf);
+  if (bytes.length < 22) throw new Error("zip curto");
+  var dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.length);
+  var endPos = -1, lo = Math.max(0, bytes.length - 22 - 65557);
+  for (var i = bytes.length - 22; i >= lo; i--) { if (dv.getUint32(i, true) === 0x06054b50) { endPos = i; break; } }
+  if (endPos < 0) throw new Error("EOCD não encontrado");
+  var count = dv.getUint16(endPos + 10, true), cdOff = dv.getUint32(endPos + 16, true);
+  var out = [], p = cdOff;
+  for (var n = 0; n < count; n++) {
+    if (dv.getUint32(p, true) !== 0x02014b50) throw new Error("diretório inválido");
+    var method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), usize = dv.getUint32(p + 24, true);
+    var nlen = dv.getUint16(p + 28, true), elen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true);
+    var lho = dv.getUint32(p + 42, true);
+    var isDir = /\/$/.test(zipDecodeName(bytes.subarray(p + 46, p + 46 + nlen), true));
+    var name = zipDecodeName(bytes.subarray(p + 46, p + 46 + nlen), (dv.getUint16(p + 8, true) & 0x0800) !== 0);
+    var nlen2 = dv.getUint16(lho + 26, true), elen2 = dv.getUint16(lho + 28, true);
+    out.push({ name: name, size: usize, csize: csize, method: method, dir: isDir, dataStart: lho + 30 + nlen2 + elen2 });
+    p += 46 + nlen + elen + clen;
+  }
+  return out.filter(function (e) { return !e.dir && e.name !== "notas.json" && e.name !== "indice.csv"; });
+}
+/* Extrai um item STORE (sem compactação) a partir do buffer original. */
+function zipExtractStore(bytes, entry) {
+  bytes = (bytes instanceof Uint8Array) ? bytes : new Uint8Array(bytes);
+  if (!entry || entry.method !== 0) throw new Error("compactação não suportada");
+  return bytes.slice(entry.dataStart, entry.dataStart + entry.csize);
+}

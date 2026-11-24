@@ -78,14 +78,14 @@ function openRunBlocked(url,doc){
 }
 
 /* Painel Executar com prévia: HTML, JS, Python, JSON, Markdown, CSS e texto. */
-var RUN_LANGS=[["auto","Automática"],["html","HTML"],["javascript","JavaScript"],["python","Python"],["json","JSON"],["markdown","Markdown"],["css","CSS"],["texto","Texto"]];
+var RUN_LANGS=[["auto","Automática"],["html","HTML"],["javascript","JavaScript"],["python","Python"],["json","JSON"],["markdown","Markdown"],["css","CSS"],["csv","CSV"],["texto","Texto"]];
 function runExtOf(name){var m=String(name||"").match(/\.([a-z0-9]+)$/i);return m?m[1].toLowerCase():"";}
 function detectRunLang(name,src){
   var ext=runExtOf(name);
   if(ext==="html"||ext==="htm"||ext==="xhtml"||ext==="svg")return "html";
   if(ext==="js"||ext==="mjs")return "javascript";
   if(ext==="py"||ext==="pyw")return "python";
-  if(ext==="json")return "json";
+  if(ext==="json")return "json";if(ext==="csv")return "csv";
   if(ext==="md"||ext==="markdown"||ext==="mdown"||ext==="mkd")return "markdown";
   if(ext==="css")return "css";
   if(looksLikeHtml(src))return "html";
@@ -163,6 +163,10 @@ function runPanelGo(){
     try{var v=JSON.parse(code);runPanelLog(JSON.stringify(v,null,2));}
     catch(e){runPanelLog("ERRO: JSON inválido ("+((e&&e.message)||e)+")");}
     runPanelPreview("",false,"");
+  }
+  else if(lang==="csv"){
+    runPanelLog("Prévia CSV abaixo ("+code.split("\n").length+" linhas).");
+    runPanelPreview(typeof csvRender==="function"?csvRender(code):esc(code),false,"");
   }
   else if(lang==="markdown"){
     var full=(typeof resolveAttachments==="function")?resolveAttachments(code,t):code;
