@@ -32,6 +32,7 @@ function renderTabs(){
     for(var li=0;li<rawLines.length;li++){
       var cand=rawLines[li].replace(/!\[[^\]]*\]\([^)]*\)/g,"").replace(/\[[^\]]*\]\([^)]*\)/g,"").trim();
       if(!cand)continue;
+      if(/^\*Colado em .+\*$/.test(cand))continue;
       if(/^data:[a-z]+\/[a-z0-9+.\-]+;base64,/i.test(cand))continue;
       if(cand.length>60&&cand.indexOf(" ")<0)cand=cand.slice(0,40);
       line=cand;break;
@@ -52,7 +53,7 @@ function renderTabs(){
     d.addEventListener("drop",function(ev){if(dragTabIndex<0)return;ev.preventDefault();var from=dragTabIndex,r=d.getBoundingClientRect(),after=(ev.clientX-r.left)>r.width/2,to=from< i?(after?i:i-1):(after?i+1:i);moveTab(from,Math.max(0,Math.min(to,tabs.length-1)));});
     var s=document.createElement("span");s.className="t";s.textContent=t.name;d.appendChild(s);
     var dot=document.createElement("span");dot.className="dot";d.appendChild(dot);
-    var x=document.createElement("span");x.className="x";x.textContent="×";x.title="Fechar guia";
+    var x=document.createElement("span");x.className="x";x.innerHTML='<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>';x.title="Fechar guia";
     x.onclick=function(e){e.stopPropagation();closeTab(i);};d.appendChild(x);
     d.onclick=function(){if(active!==i||editor.value!==cur().content){active=i;syncEditor();}else{active=i;}renderTabs();updateStatus();scheduleSessionSave();};
     d.onauxclick=function(e){if(e.button===1)closeTab(i);};

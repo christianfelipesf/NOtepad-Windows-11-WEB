@@ -112,10 +112,14 @@ describe("imagem colada vira referência curta", () => {
     assert.ok(val.length < 100, "editor fica curto, sem o base64 gigante");
     assert.doesNotMatch(val, /AAAA/);
     assert.match(val, /!\[foto\]\(foto[a-z0-9.-]*\.png\)/);
+    assert.match(val, /\*Colado em .+\*/);
     assert.equal(t.run("Object.keys(cur().attachments).length"), 1);
-    assert.equal(t.run("resolveAttachments(editor.value,cur())"), `![foto](${big})\n`);
+    const resolved = t.run("resolveAttachments(editor.value,cur())");
+    assert.match(resolved, new RegExp("^!\\[foto\\]\\(" + big.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\)\\n"));
+    assert.match(resolved, /\*Colado em .+\*/);
     t.run("renderPreview()");
     assert.match(t.box.document.getElementById("preview").innerHTML, /<img/);
+    assert.match(t.box.document.getElementById("preview").innerHTML, /Colado em/);
   });
 
   it("nota antiga com base64 gigante é compactada ao abrir", () => {

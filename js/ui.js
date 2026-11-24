@@ -94,6 +94,7 @@ function buildMenus(){
   item(E,"Copiar","Ctrl+C",function(){document.execCommand("copy");});
   item(E,"Colar","Ctrl+V",function(){try{document.execCommand("paste");}catch(e){}});
   item(E,"Colar foto (Markdown)...",null,function(){pasteImageFromClipboard();});
+  item(E,"Anexar arquivo (Markdown)...",null,function(){pickFile();});
   item(E,"Excluir","Del",function(){document.execCommand("delete");});
   sep(E);
   item(E,"Localizar...","Ctrl+F",function(){hideBoxes();$("findBox").classList.add("show");$("findText").focus();});
@@ -359,6 +360,7 @@ function bindGlobalEvents(){
   $("btnAllTabs").onclick=function(e){e.stopPropagation();openAllTabs();};
   $("zipInput").addEventListener("change",function(e){Array.from(e.target.files).forEach(function(f){f.arrayBuffer().then(function(b){importZipData(b);});});e.target.value="";});
   var imgInp=$("imgInput");if(imgInp)imgInp.addEventListener("change",function(e){Array.from(e.target.files).forEach(function(f){insertImageFile(f);});e.target.value="";});
+  var fInp=$("fileAttachInput");if(fInp)fInp.addEventListener("change",function(e){Array.from(e.target.files).forEach(function(f){insertAttachmentFile(f);});e.target.value="";});
   $("fileInput").addEventListener("change",function(e){
     Array.from(e.target.files).forEach(function(f){f.arrayBuffer().then(function(b){openFileObject({name:f.name},b);});});
     e.target.value="";
@@ -430,6 +432,11 @@ function bindGlobalEvents(){
   window.addEventListener("drop",function(e){
     e.preventDefault();document.body.classList.remove("dragging");
     var fs=e.dataTransfer&&e.dataTransfer.files;
-    if(fs&&fs.length)Array.from(fs).forEach(function(f){if(/^image\//i.test(f.type||"")){insertImageFile(f);}else f.arrayBuffer().then(function(b){openFileObject({name:f.name},b);});});
+    if(fs&&fs.length)Array.from(fs).forEach(function(f){
+      if(/^image\//i.test(f.type||"")){insertImageFile(f);return;}
+      var t=(typeof cur==="function")?cur():null;
+      if(t&&typeof isMarkdownFile==="function"&&isMarkdownFile(t.name)){insertAttachmentFile(f);return;}
+      f.arrayBuffer().then(function(b){openFileObject({name:f.name},b);});
+    });
   });
 }

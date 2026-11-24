@@ -3,7 +3,7 @@
 function mdInline(s){
   s=esc(s);
   s=s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g,"<img alt='$1' src='$2'>");
-  s=s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,"<a href='$2' target='_blank' rel='noopener'>$1</a>");
+  s=s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,function(m,t,u){return u.indexOf("data:")===0?"<a href='"+u+"' download='"+t+"' target='_blank' rel='noopener'>"+t+"</a>":"<a href='"+u+"' target='_blank' rel='noopener'>"+t+"</a>";});
   s=s.replace(/`([^`]+)`/g,"<code>$1</code>");
   s=s.replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>");
   s=s.replace(/__([^_]+)__/g,"<strong>$1</strong>");
