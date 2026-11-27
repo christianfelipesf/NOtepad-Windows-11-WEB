@@ -134,12 +134,13 @@ function themeSwatch(name){try{var de=document.documentElement,prev=de.dataset?d
   var n=t.content.length,ln=t.content.length?t.content.split("\n").length:1;
   var wd=(t.content.match(/\S+/g)||[]).length;
   dlg("<h2>Propriedades da nota</h2>"
-    +"<div class='field'><label>Título</label><input type='text' id='pName' value='"+esc(t.name)+"'></div>"
+    +"<p><b>Nome:</b> "+esc(t.name)+"</p>"
     +"<p><b>Criada em:</b> "+esc(fmtDT(t.createdAt||Date.now()))+"<br><b>Editada em:</b> "+esc(fmtDT(t.updatedAt||t.createdAt||Date.now()))
     +"<br><b>Conteúdo:</b> "+n+" caracteres • "+ln+(ln===1?" linha":" linhas")+" • "+wd+(wd===1?" palavra":" palavras")
     +"<br><b>Codificação:</b> "+esc(t.encoding)+" &nbsp; <b>Quebra:</b> "+esc(t.eol)+"</p>"
-    +"<div class='row'><button class='btn primary' id='pOk'>OK</button><button class='btn' onclick='closeDlg()'>Cancelar</button></div>");
-  $("pOk").onclick=function(){var v=$("pName").value.trim();if(v){if(v!==t.name)t.handle=null;t.name=v;t.fallback=v;if(!t.path)t.path=v;t.updatedAt=Date.now();}t.content=editor.value;scheduleSessionSave();renderTabs();applyTheme();updateStatus();closeDlg();};
+    +"<p>Para mudar o nome ou a extensão, clique em "+esc(tabExt(t))+" na barra de status.</p>"
+    +"<div class='row'><button class='btn primary' onclick='closeDlg()'>Fechar</button></div>");
+
 }
 function tabExt(t){var m=String((t&&t.path)||(t&&t.name)||"").match(/\.([a-z0-9]{1,10})$/i);return m?("."+m[1].toLowerCase()):".txt";}
 function openExtDialog(){
@@ -443,7 +444,7 @@ function bindGlobalEvents(){
     c.style.left=Math.min(r.left,innerWidth-200)+"px";c.style.top=(r.top-140)+"px";c.classList.add("show");
   };
   var stT=$("stTheme");if(stT)stT.onclick=function(){openThemeChooser();};
-  var stD=$("stDates");if(stD)stD.onclick=function(){openProps();};
+  var stD=$("stDates");if(stD){stD.onclick=null;if(stD.classList&&stD.classList.remove)stD.classList.remove("clickable");}
   var stX=$("stExt");if(stX)stX.onclick=function(){openExtDialog();};
   var stL=$("stLines");if(stL)stL.onclick=function(){openGoto();};
   $("ovl").addEventListener("click",function(e){if(e.target.id==="ovl")closeDlg();});

@@ -59,7 +59,7 @@ function openRunInNewTab(){
     dlg("<h2>Executar página</h2><p>Para executar, renomeie a guia para <b>.html</b> (página) ou <b>.js</b> (script com console na tela). Ex.: <b>teste.html</b>.</p>"
       +"<div class='row'><button class='btn' id='rRename'>Renomear guia</button><button class='btn primary' id='rForce'>Executar mesmo assim</button><button class='btn' onclick='closeDlg()'>Cancelar</button></div>");
     $("rForce").onclick=function(){closeDlg();launch();};
-    $("rRename").onclick=function(){closeDlg();openProps();};
+    $("rRename").onclick=function(){closeDlg();openExtDialog();};
     return;
   }
   launch();
